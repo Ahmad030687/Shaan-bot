@@ -40,7 +40,7 @@ module.exports = {
             return api.sendMessage("❌ Photo reply karo ya image URL do", threadID, messageID);
         }
 
-        const waitMessage = await api.sendMessage("✫꯭🎸꯭≛⃝𝐒𝐇𝐀𝐀𝐍-𝐊𝐇𝐀𝐍⎯᪳⤹🌷⤸\x0a⏳ 4K image ban rahi hai…", threadID);
+        const waitMessage = await api.sendMessage("✫꯭🎸꯭≛⃝𝐀𝐇𝐌𝐀𝐃⎯᪳⤹🌷⤸\x0a⏳ 4K image ban rahi hai…", threadID);
 
         try {
             const baseApi = await getBaseApi();
