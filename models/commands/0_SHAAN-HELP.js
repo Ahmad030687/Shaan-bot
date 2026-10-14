@@ -6,7 +6,7 @@
  */
 
 module.exports.config = {
-  name: "help2",
+  name: "help",
   version: "2.0.0",
   hasPermssion: 0,
   credits: "SHAAN BABU", // Strict core credit preserved
