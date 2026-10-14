@@ -1,128 +1,98 @@
-const axios = require("axios");
-const yts = require("yt-search");
+/**
+ * Project: AHMAD RDX Music Download Command
+ * Credits: SARDAR RDX
+ */
 
-/* 🔐 Credits Lock */
-function checkCredits() {
-  // Credits updated to Shaan Khan and locked
-  if (module.exports.config.credits !== "Shaan Khan") {
-    throw new Error("❌ Credits Locked By Shaan Khan");
-  }
-}
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const yts = require('yt-search');
 
-/* 🎞 Loading Frames */
-const frames = [
-  "🎵 ▰▱▱▱▱▱▱▱▱▱ 10%",
-  "🎶 ▰▰▱▱▱▱▱▱▱▱ 20%",
-  "🎧 ▰▰▰▰▱▱▱▱▱▱ 40%",
-  "💿 ▰▰▰▰▰▰▱▱▱▱ 60%",
-  "❤️ ▰▰▰▰▰▰▰▰▰▰ 100%"
-];
+const cacheDir = path.join(__dirname, '..', 'cache', 'music');
 
-/* 🌐 API */
-const baseApiUrl = async () => {
-  const res = await axios.get(
-    "https://raw.githubusercontent.com/Mostakim0978/D1PT0/refs/heads/main/baseApiUrl.json"
-  );
-  return res.data.api;
-};
+module.exports = {
+    config: {
+        name: "music",
+        version: "1.0.4",
+        hasPermssion: 0,
+        credits: "SARDAR RDX",
+        description: "YouTube se song download karke audio bhejne ke liye command",
+        usePrefix: true,
+        prefix: true,
+        commandCategory: "media",
+        category: "media",
+        usages: "[song name or youtube url]",
+        cooldowns: 5,
+        aliases: ["sing", "song", "audio"]
+    },
 
-(async () => {
-  global.apis = { diptoApi: await baseApiUrl() };
-})();
+    run: async function ({ api, event, args }) {
+        const { threadID, messageID } = event;
+        const input = args.join(" ");
 
-async function getStreamFromURL(url, name) {
-  const res = await axios.get(url, { responseType: "stream" });
-  res.data.path = name;
-  return res.data;
-}
+        if (!input) {
+            return api.sendMessage("❌ Kripya kisi song ka naam ya YouTube URL dein!\n📝 Example: .music Tum mere ho", threadID, messageID);
+        }
 
-function getVideoID(url) {
-  const r =
-    /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/))([\w-]{11})/;
-  const m = url.match(r);
-  return m ? m[1] : null;
-}
+        const processingMsg = await api.sendMessage("🔍 Song search aur download ho raha hai...\n⏳ Thoda wait karo...", threadID);
+        const msgID = processingMsg?.messageID || processingMsg;
 
-/* ⚙ CONFIG */
-module.exports.config = {
-  name: "music",
-  version: "1.3.5",
-  credits: "Shaan Khan", // Updated credit
-  hasPermssion: 0,
-  cooldowns: 5,
-  description: "YouTube MP3 Downloader",
-  commandCategory: "media",
-  usages: "song <name | link>"
-};
+        try {
+            let videoUrl = input;
 
-/* ================= PREFIX ONLY ================= */
-module.exports.run = async function ({ api, args, event }) {
-  try {
-    checkCredits();
+            // Agar direct link nahi hai toh yt-search se search karein
+            if (!input.includes("youtu.be") && !input.includes("youtube.com")) {
+                const searchResults = await yts(input);
+                if (!searchResults || !searchResults.videos || searchResults.videos.length === 0) {
+                    try { api.unsendMessage(msgID); } catch (e) {}
+                    return api.sendMessage(`❌ "${input}" nahi mili. Doosra naam try karo.`, threadID, messageID);
+                }
+                videoUrl = searchResults.videos[0].url;
+            }
 
-    if (!args[0]) {
-      return api.sendMessage(
-        "❌ Song ka naam ya YouTube link do",
-        event.threadID,
-        event.messageID
-      );
+            // Downloader API call
+            const downloadApi = `https://api.princetechn.com/api/download/ytmp3?apikey=prince&url=${encodeURIComponent(videoUrl)}`;
+            const response = await axios.get(downloadApi, { timeout: 60000 });
+
+            if (!response.data || !response.data.success || !response.data.result || !response.data.result.downloadUrl) {
+                try { api.unsendMessage(msgID); } catch (e) {}
+                return api.sendMessage(`❌ "${input}" download nahi ho saka. Kripya dobara try karein.`, threadID, messageID);
+            }
+
+            const { title, author, duration, downloadUrl } = response.data.result;
+
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
+
+            const filePath = path.join(cacheDir, `music_${Date.now()}.mp3`);
+            
+            const audioDownload = await axios({
+                method: 'get',
+                url: downloadUrl,
+                responseType: 'arraybuffer',
+                timeout: 60000,
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+
+            fs.writeFileSync(filePath, Buffer.from(audioDownload.data));
+
+            try { api.unsendMessage(msgID); } catch (e) {}
+
+            const minutes = Math.floor((duration || 0) / 60);
+            const seconds = String((duration || 0) % 60).padStart(2, '0');
+
+            return api.sendMessage({
+                body: `🎵 𝗧𝗶𝘁𝗹𝗲: ${title}\n👤 𝗔𝗿𝘁𝗶𝘀𝘁: ${author || 'Unknown'}\n⏱️ 𝗗𝘂𝗿𝗮𝘁𝗶𝗼𝗻: ${minutes}:${seconds}\n✨ 𝗖𝗿𝗲𝗱𝗶𝘁𝘀: SARDAR RDX`,
+                attachment: fs.createReadStream(filePath)
+            }, threadID, () => {
+                try { fs.unlinkSync(filePath); } catch (e) {}
+            }, messageID);
+
+        } catch (error) {
+            console.error('[music] Error:', error.message);
+            try { api.unsendMessage(msgID); } catch (e) {}
+            return api.sendMessage(`❌ "${input}" process karte hue error aa gayi.`, threadID, messageID);
+        }
     }
-
-    const input = args.join(" ");
-
-    const loading = await api.sendMessage(
-      "🔍 Processing...",
-      event.threadID
-    );
-
-    for (const f of frames) {
-      await new Promise(r => setTimeout(r, 400));
-      await api.editMessage(f, loading.messageID);
-    }
-
-    let videoID;
-
-    if (input.includes("youtu")) {
-      videoID = getVideoID(input);
-      if (!videoID) throw new Error("Invalid URL");
-    } else {
-      const res = await yts(input);
-      videoID = res.videos[0]?.videoId;
-      if (!videoID) throw new Error("No result");
-    }
-
-    const { data } = await axios.get(
-      `${global.apis.diptoApi}/ytDl3?link=${videoID}&format=mp3`
-    );
-
-    const short = (
-      await axios.get(
-        `https://tinyurl.com/api-create.php?url=${encodeURIComponent(
-          data.downloadLink
-        )}`
-      )
-    ).data;
-
-    api.unsendMessage(loading.messageID);
-
-    return api.sendMessage(
-      {
-        body: `🎵 ${data.title}\n🔗 ${short}`,
-        attachment: await getStreamFromURL(
-          data.downloadLink,
-          `${data.title}.mp3`
-        )
-      },
-      event.threadID,
-      event.messageID
-    );
-
-  } catch (err) {
-    console.error(err);
-    return api.sendMessage(
-      "⚠️ Server busy ya API down 😢",
-      event.threadID,
-      event.messageID
-    );
-  }
 };
