@@ -83,31 +83,11 @@ function registerCommandToBot(localFilePath) {
     return false;
 }
 
-function registerEventToBot(localFilePath) {
-    try {
-        if (require.cache[require.resolve(localFilePath)]) {
-            delete require.cache[require.resolve(localFilePath)];
-        }
-        const pull = require(localFilePath);
-        global.client = global.client || {};
-        global.client.events = global.client.events || new Map();
-
-        if (pull.config && pull.config.name) {
-            const evtName = pull.config.name.toLowerCase();
-            global.client.events.set(evtName, pull);
-            return true;
-        }
-    } catch (err) {
-        console.error('[AHMAD RDX Event Load Error]:', err.message);
-    }
-    return false;
-}
-
 module.exports = {
     config: {
         name: 'cmdmanager',
         aliases: ['addcmd', 'editcmd', 'cmd', 'load', 'editevt', 'addevt', 'evt'],
-        version: '3.5.0',
+        version: '3.6.0',
         permission: 2,
         credits: 'SARDAR RDX',
         description: 'Direct Command & Event Manager by AHMAD RDX',
@@ -131,7 +111,7 @@ module.exports = {
                 `📌 Usage:\n` +
                 `1. Reply to code message: .editcmd <name>\n` +
                 `2. Direct Paste: .editcmd <name> <code>\n\n` +
-                `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`,
+                `👑 𝐏𝐎𝐖𝐄𝐑 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`,
                 threadID,
                 messageID
             );
@@ -142,13 +122,13 @@ module.exports = {
         const localFilePath = path.join(targetDir, fileName);
         const githubPath = `${repoSubDir}/${fileName}`;
 
-        // Case A: Reply to Message containing code
+        // Reply Method
         if (type === 'message_reply' && messageReply && messageReply.body) {
             const codeContent = messageReply.body.trim();
 
             try {
                 await fs.writeFile(localFilePath, codeContent, 'utf8');
-                const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
+                const loaded = registerCommandToBot(localFilePath);
 
                 const sha = await getGithubFileSha(githubPath);
                 const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} via Reply`, sha);
@@ -158,7 +138,7 @@ module.exports = {
                     `📁 File: ${repoSubDir}/${fileName}\n` +
                     `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
                     `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
-                    `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
+                    `👑 𝐏𝐎𝐖𝐄𝐑 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
 
                 return api.sendMessage(replyStatus, threadID, messageID);
             } catch (err) {
@@ -166,13 +146,13 @@ module.exports = {
             }
         }
 
-        // Case B: Direct Code Paste (.editcmd pair <code>)
+        // Direct Code Method
         if (args.length >= 2) {
             const codeContent = cleanBody.substring(cleanBody.indexOf(args[1])).trim();
 
             try {
                 await fs.writeFile(localFilePath, codeContent, 'utf8');
-                const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
+                const loaded = registerCommandToBot(localFilePath);
 
                 const sha = await getGithubFileSha(githubPath);
                 const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} Direct`, sha);
@@ -182,7 +162,7 @@ module.exports = {
                     `📁 File: ${repoSubDir}/${fileName}\n` +
                     `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
                     `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
-                    `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
+                    `👑 𝐏𝐎𝐖𝐄𝐑 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
 
                 return api.sendMessage(directStatus, threadID, messageID);
             } catch (err) {
@@ -190,7 +170,7 @@ module.exports = {
             }
         }
 
-        // Case C: Read File Code
+        // View File Code
         if (fs.existsSync(localFilePath)) {
             try {
                 const oldCode = await fs.readFile(localFilePath, 'utf8');
