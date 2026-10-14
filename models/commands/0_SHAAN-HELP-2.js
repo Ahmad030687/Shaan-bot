@@ -1,12 +1,19 @@
+/**
+ * Module: Help2 (All Commands List & Guide)
+ * Path: Sardar/commands/help2.js
+ * Credits: SHAAN BABU (Strictly preserved)
+ * Upgraded & Branded by: AHMAD RDX
+ */
+
 module.exports.config = {
   name: "help2",
-  version: "1.0.2",
+  version: "2.0.0",
   hasPermssion: 0,
-  credits: "SHAAN BABU",
-  description: "THIS BOT IS MR SHAAN BABU",
+  credits: "SHAAN BABU", // Strict core credit preserved
+  description: "Displays full list of available bot commands with ultra-premium AHMAD RDX branding",
   usePrefix: true,
   commandCategory: "BOT-ALL-COMMAND-NAME",
-  usages: "HELP-2",
+  usages: "help2 [command_name/page]",
   cooldowns: 1,
   envConfig: {
     autoUnsend: true,
@@ -16,11 +23,25 @@ module.exports.config = {
 
 module.exports.languages = {
   "en": {
-    "moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
-    "helpList": '[ There are %1 commands on this bot, Use: "%2help nameCommand" to know how to use! ]',
-    "user": "User",
-        "adminGroup": "Admin group",
-        "adminBot": "Admin bot"
+    "moduleInfo": 
+      "╔════════════════════════╗\n" +
+      "║  📌 COMMAND INFORMATION ║\n" +
+      "╚════════════════════════╝\n\n" +
+      "🏷️ Command: %1\n" +
+      "📝 Description: %2\n\n" +
+      "💡 Usage: %3\n" +
+      "📂 Category: %4\n" +
+      "⏱️ Cooldown: %5 second(s)\n" +
+      "🛡️ Permission: %6\n\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 POWERED BY: AHMAD RDX\n" +
+      "📱 WhatsApp: +92306*******\n" +
+      "✈️ Telegram: ahmadalisafdar3\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "helpList": '[ Total %1 commands available. Use "%2help <command_name>" for details ]',
+    "user": "Everyone (User)",
+    "adminGroup": "Group Admin",
+    "adminBot": "Bot Owner / Admin"
   }
 };
 
@@ -34,10 +55,24 @@ module.exports.handleEvent = function ({ api, event, getText }) {
   const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
   const command = commands.get(splitBody[1].toLowerCase());
   const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
-  return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
-}
 
-module.exports. run = function({ api, event, args, getText }) {
+  return api.sendMessage(
+    getText(
+      "moduleInfo", 
+      command.config.name, 
+      command.config.description, 
+      `${prefix}${command.config.name}${(command.config.usages) ? command.config.usages : ""}`, 
+      command.config.commandCategory, 
+      command.config.cooldowns, 
+      ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), 
+      command.config.credits
+    ), 
+    threadID, 
+    messageID
+  );
+};
+
+module.exports.run = function({ api, event, args, getText }) {
   const { commands } = global.client;
   const { threadID, messageID } = event;
   const command = commands.get((args[0] || "").toLowerCase());
@@ -58,20 +93,33 @@ module.exports. run = function({ api, event, args, getText }) {
       arrayInfo.push(name);
     }
 
-    arrayInfo.sort((a, b) => a.data - b.data);
+    arrayInfo.sort((a, b) => a.localeCompare(b));
 
-    const startSlice = numberOfOnePage*page - numberOfOnePage;
+    const startSlice = numberOfOnePage * page - numberOfOnePage;
     i = startSlice;
     const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
 
-    for (let item of returnArray) msg += `🥀  [${++i}] → ${prefix}${item} ♥️ \n`;
+    for (let item of returnArray) {
+      msg += `✨ [ ${++i} ] ➔ ${prefix}${item}\n`;
+    }
 
+    const header = 
+      "╔════════════════════════╗\n" +
+      "║   ⚡ AHMAD RDX SYSTEM ⚡   ║\n" +
+      "╚════════════════════════╝\n\n" +
+      "📜 ════ ALL COMMANDS MENU ════ 📜\n\n";
 
-    const siu = `┏━━━━━┓\n    𝐒𝐇𝐀𝐀𝐍-𝐊𝐇𝐀𝐍-𝐊                   ✧═══•❁😛❁•═══✧\n┗━━━━━┛\n\n\n✧═══❁♥️𝐀𝐥𝐥 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 ♥️❁═══✧`;
+    const footer = 
+      `\n📌 PAGE [ ${page}/${Math.ceil(arrayInfo.length / numberOfOnePage)} ]\n` +
+      `💡 Total Commands: ${arrayInfo.length}\n` +
+      `💬 Usage Example: ${prefix}help <command_name>\n\n` +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX\n" +
+      "📱 WhatsApp: +92306*******\n" +
+      "✈️ Telegram: ahmadalisafdar3\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
- const text = `PAGE 🥀  [ ${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)} ]\n\𝐎𝐔𝐑 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐊𝐄 𝐋𝐈𝐘𝐄  𝐌𝐄𝐍𝐔 𝐋𝐈𝐊𝐇𝐎 \𝐓𝐇𝐈𝐒 𝐁𝐎𝐓 𝐈𝐒 𝐌𝐀𝐃𝐄 𝐁𝐘𝐄  𝐒𝐇𝐀𝐀𝐍-𝐊𝐇𝐀𝐍=𝐊 🙂✌️\n\n\n\n🕊️ ═════ 💋𝐒𝐇𝐀𝐀𝐍-𝐊𝐇𝐀𝐍💋 ═════ 🕊️`;
-
-    return api.sendMessage(siu + "\n\n" + msg  + text, threadID, async (error, info) => {
+    return api.sendMessage(header + msg + footer, threadID, async (error, info) => {
       if (autoUnsend) {
         await new Promise(resolve => setTimeout(resolve, delayUnsend * 1000));
         return api.unsendMessage(info.messageID);
@@ -79,5 +127,18 @@ module.exports. run = function({ api, event, args, getText }) {
     }, event.messageID);
   }
 
-  return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
+  return api.sendMessage(
+    getText(
+      "moduleInfo", 
+      command.config.name, 
+      command.config.description, 
+      `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, 
+      command.config.commandCategory, 
+      command.config.cooldowns, 
+      ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), 
+      command.config.credits
+    ), 
+    threadID, 
+    messageID
+  );
 };
