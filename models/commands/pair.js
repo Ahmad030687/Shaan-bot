@@ -1,5 +1,5 @@
 /**
- * Module: Pair (Ultra-Premium Clean Canvas Matcher)
+ * Module: Pair (BGMI Light Action Matcher)
  * Path: models/commands/pair.js
  * Credits: uzairrajput (Strictly preserved)
  * Upgraded & Branded by: AHMAD RDX
@@ -11,10 +11,10 @@ const path = require("path");
 
 module.exports.config = {
   name: "pair",
-  version: "8.0.0", 
+  version: "9.0.0", 
   hasPermssion: 0,
   credits: "uzairrajput", // Strict core credit preserved
-  description: "Ultra-premium clean single-card love pair module",
+  description: "Light theme BGMI action love matcher card",
   commandCategory: "Love", 
   usages: "pair", 
   cooldowns: 5
@@ -32,7 +32,7 @@ module.exports.run = async function({ api, event, Users }) {
         }
 
         const { createCanvas, loadImage } = canvasModule;
-        const loadingMsg = await api.sendMessage("⏳ ❪ 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 ❫ ✦ Generating VIP Love Card...", threadID);
+        const loadingMsg = await api.sendMessage("🎯 ❪ 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 ❫ ✦ Locking Target & Generating BGMI Card...", threadID);
 
         const threadInfo = await api.getThreadInfo(threadID);
         const botID = api.getCurrentUserID();
@@ -47,7 +47,7 @@ module.exports.run = async function({ api, event, Users }) {
         const partnerID = listUserID[Math.floor(Math.random() * listUserID.length)];
         const name2 = await Users.getNameUser(partnerID);
 
-        // Fetch Avatars Parallel
+        // Fetch Avatars
         const [avatar1Res, avatar2Res] = await Promise.all([
             axios.get(`https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" }),
             axios.get(`https://graph.facebook.com/${partnerID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
@@ -56,29 +56,39 @@ module.exports.run = async function({ api, event, Users }) {
         const avatar1 = await loadImage(Buffer.from(avatar1Res.data));
         const avatar2 = await loadImage(Buffer.from(avatar2Res.data));
 
-        // Create Canvas (1200 x 500)
+        // Create Canvas (1200 x 520)
         const width = 1200;
-        const height = 500;
+        const height = 520;
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        // 1. Premium Cyber Dark Gradient Background
+        // 1. Premium Light Metallic-White Background
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, "#07020a");
-        bgGrad.addColorStop(0.5, "#25061b");
-        bgGrad.addColorStop(1, "#07020a");
+        bgGrad.addColorStop(0, "#ffffff");
+        bgGrad.addColorStop(0.5, "#f0f3f8");
+        bgGrad.addColorStop(1, "#e2e8f0");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, width, height);
 
-        // 2. Glowing Glass Border Frame
-        ctx.fillStyle = "rgba(255, 255, 255, 0.02)";
-        ctx.strokeStyle = "rgba(255, 42, 117, 0.6)";
+        // Grid Cyber Lines (BGMI Tactical feel)
+        ctx.strokeStyle = "rgba(15, 23, 42, 0.05)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < width; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+        }
+        for (let y = 0; y < height; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+        }
+
+        // 2. Tactical Glass Frame
+        ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.strokeStyle = "#ff2a55";
         ctx.lineWidth = 4;
         ctx.fillRect(35, 35, width - 70, height - 70);
         ctx.strokeRect(35, 35, width - 70, height - 70);
 
-        // 3. Circular Avatars with Neon Ring
-        function drawAvatar(img, x, y, size) {
+        // 3. Draw Avatars (Shooter & Target)
+        function drawCircularAvatar(img, x, y, size, borderColor) {
             ctx.save();
             ctx.beginPath();
             ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
@@ -86,54 +96,65 @@ module.exports.run = async function({ api, event, Users }) {
             ctx.drawImage(img, x, y, size, size);
             ctx.restore();
 
-            // Ring Outer Border
             ctx.beginPath();
             ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
             ctx.lineWidth = 7;
-            ctx.strokeStyle = "#ff2a75";
+            ctx.strokeStyle = borderColor;
             ctx.stroke();
         }
 
-        const avtSize = 220;
-        drawAvatar(avatar1, 95, 110);
-        drawAvatar(avatar2, width - 95 - avtSize, 110);
+        const avtSize = 210;
+        // Left Avatar (Shooter)
+        drawCircularAvatar(avatar1, 100, 115, avtSize, "#0f172a");
+        // Right Avatar (Target)
+        drawCircularAvatar(avatar2, width - 100 - avtSize, 115, avtSize, "#ff2a55");
 
-        // 4. Draw Pure Vector Heart in Center (No Missing Font Box Bug!)
-        function drawVectorHeart(fromX, fromY, hWidth, hHeight) {
-            ctx.save();
-            ctx.beginPath();
-            const topCurveHeight = hHeight * 0.3;
-            ctx.moveTo(fromX, fromY + topCurveHeight);
-            ctx.bezierCurveTo(fromX, fromY, fromX - hWidth / 2, fromY, fromX - hWidth / 2, fromY + topCurveHeight);
-            ctx.bezierCurveTo(fromX - hWidth / 2, fromY + (hHeight + topCurveHeight) / 2, fromX, fromY + hHeight, fromX, fromY + hHeight);
-            ctx.bezierCurveTo(fromX, fromY + hHeight, fromX + hWidth / 2, fromY + (hHeight + topCurveHeight) / 2, fromX + hWidth / 2, fromY + topCurveHeight);
-            ctx.bezierCurveTo(fromX + hWidth / 2, fromY, fromX, fromY, fromX, fromY + topCurveHeight);
-            ctx.closePath();
-            ctx.fillStyle = "#ff2a75";
-            ctx.fill();
-            ctx.restore();
-        }
+        // 4. Center Crosshair / Scope Target Visual (Vector Art)
+        const centerX = width / 2;
+        const centerY = 180;
 
-        drawVectorHeart(width / 2, 125, 80, 75);
+        // Outer Scope Ring
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 55, 0, Math.PI * 2);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#ff2a55";
+        ctx.stroke();
 
-        // 5. Score Text (Clean Numbers Only)
-        ctx.font = "bold 55px sans-serif";
-        ctx.fillStyle = "#ffffff";
+        // Crosshair Lines
+        ctx.beginPath(); ctx.moveTo(centerX - 70, centerY); ctx.lineTo(centerX + 70, centerY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(centerX, centerY - 70); ctx.lineTo(centerX, centerY + 70); ctx.stroke();
+
+        // Center Red Lock Dot
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#ff2a55";
+        ctx.fill();
+
+        // 5. Score Percentage Box
+        ctx.font = "bold 52px sans-serif";
+        ctx.fillStyle = "#0f172a";
         ctx.textAlign = "center";
-        ctx.fillText(`${score}%`, width / 2, 270);
+        ctx.fillText(`${score}%`, centerX, 305);
 
-        // 6. User Names (Clean Font)
+        // Status Badge
+        ctx.font = "bold 20px sans-serif";
+        ctx.fillStyle = "#ff2a55";
+        ctx.fillText("HEADSHOT COMPATIBILITY", centerX, 335);
+
+        // 6. User Names
         ctx.font = "bold 28px sans-serif";
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#0f172a";
+
         const cleanName1 = name1.length > 13 ? name1.substring(0, 11) + ".." : name1;
         const cleanName2 = name2.length > 13 ? name2.substring(0, 11) + ".." : name2;
-        ctx.fillText(cleanName1, 205, 385);
-        ctx.fillText(cleanName2, width - 205, 385);
 
-        // 7. Footer Branding (Pure ASCII Text)
+        ctx.fillText(`🔫 ${cleanName1}`, 205, 385);
+        ctx.fillText(`🎯 ${cleanName2}`, width - 205, 385);
+
+        // 7. Footer Branding
         ctx.font = "bold 18px sans-serif";
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-        ctx.fillText("POWERED BY AHMAD RDX", width / 2, 435);
+        ctx.fillStyle = "#64748b";
+        ctx.fillText("BGMI EDITION • POWERED BY AHMAD RDX", centerX, 445);
 
         // Save & Send
         const cacheDir = path.join(__dirname, "cache");
@@ -143,12 +164,13 @@ module.exports.run = async function({ api, event, Users }) {
 
         await api.unsendMessage(loadingMsg.messageID);
 
-        let matchStatus = score > 80 ? "Perfect Match!" : score > 50 ? "Good Connection!" : "Needs Effort!";
+        let matchStatus = score > 80 ? "🎯 Direct Headshot!" : score > 50 ? "💥 Body Shot!" : "⚠️ Missed Shot!";
 
         const msgBody = 
-            `💖 𝐏𝐀𝐈𝐑 𝐌𝐀𝐓𝐂𝐇 💖\n\n` +
-            `👤 ${name1} ✖️ ${name2}\n` +
-            `📊 Compatibility: ${score}% — ${matchStatus}\n\n` +
+            `🎯 𝐁𝐆𝐌𝐈 𝐏𝐀𝐈𝐑 𝐋𝐎𝐂𝐊 🎯\n\n` +
+            `🔫 Shooter: ${name1}\n` +
+            `🎯 Target: ${name2}\n` +
+            `📊 Damage Score: ${score}% — ${matchStatus}\n\n` +
             `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
 
         return api.sendMessage(
