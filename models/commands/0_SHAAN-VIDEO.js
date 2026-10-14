@@ -115,7 +115,7 @@ module.exports.run = async function ({ api, args, event }) {
     return api.sendMessage(
       {
         body:
-          `»»𝑶𝑾𝑵𝑬𝑹««★™  »»𝑺𝑯𝑨𝑨𝑵 𝑲𝑯𝑨𝑵««\n` +
+          `»»𝑶𝑾𝑵𝑬𝑹««★™  »»𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗««\n` +
           `🥀𝒀𝑬 𝑳𝑶 𝑩𝑨𝑩𝒀 𝑨𝑷𝑲𝑰👉 VIDEO\n\n` +
           `🎬 Title: ${data.title}\n` +
           `📺 Quality: ${data.quality || "360p"}\n` +
