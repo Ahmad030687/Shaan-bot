@@ -1,5 +1,5 @@
 /**
- * Module: Pair (Clean Single-Card Matcher)
+ * Module: Pair (Ultra-Premium Clean Canvas Matcher)
  * Path: models/commands/pair.js
  * Credits: uzairrajput (Strictly preserved)
  * Upgraded & Branded by: AHMAD RDX
@@ -11,7 +11,7 @@ const path = require("path");
 
 module.exports.config = {
   name: "pair",
-  version: "7.0.0", 
+  version: "8.0.0", 
   hasPermssion: 0,
   credits: "uzairrajput", // Strict core credit preserved
   description: "Ultra-premium clean single-card love pair module",
@@ -47,7 +47,7 @@ module.exports.run = async function({ api, event, Users }) {
         const partnerID = listUserID[Math.floor(Math.random() * listUserID.length)];
         const name2 = await Users.getNameUser(partnerID);
 
-        // Fetch Avatars
+        // Fetch Avatars Parallel
         const [avatar1Res, avatar2Res] = await Promise.all([
             axios.get(`https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" }),
             axios.get(`https://graph.facebook.com/${partnerID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
@@ -62,22 +62,22 @@ module.exports.run = async function({ api, event, Users }) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        // Background Gradient
+        // 1. Premium Cyber Dark Gradient Background
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, "#080205");
-        bgGrad.addColorStop(0.5, "#2a081a");
-        bgGrad.addColorStop(1, "#080205");
+        bgGrad.addColorStop(0, "#07020a");
+        bgGrad.addColorStop(0.5, "#25061b");
+        bgGrad.addColorStop(1, "#07020a");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, width, height);
 
-        // Glass Border Frame
-        ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-        ctx.strokeStyle = "rgba(255, 42, 117, 0.5)";
+        // 2. Glowing Glass Border Frame
+        ctx.fillStyle = "rgba(255, 255, 255, 0.02)";
+        ctx.strokeStyle = "rgba(255, 42, 117, 0.6)";
         ctx.lineWidth = 4;
         ctx.fillRect(35, 35, width - 70, height - 70);
         ctx.strokeRect(35, 35, width - 70, height - 70);
 
-        // Circular Avatars Function
+        // 3. Circular Avatars with Neon Ring
         function drawAvatar(img, x, y, size) {
             ctx.save();
             ctx.beginPath();
@@ -86,31 +86,51 @@ module.exports.run = async function({ api, event, Users }) {
             ctx.drawImage(img, x, y, size, size);
             ctx.restore();
 
+            // Ring Outer Border
             ctx.beginPath();
             ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
-            ctx.lineWidth = 6;
+            ctx.lineWidth = 7;
             ctx.strokeStyle = "#ff2a75";
             ctx.stroke();
         }
 
-        const avtSize = 210;
-        drawAvatar(avatar1, 100, 115);
-        drawAvatar(avatar2, width - 100 - avtSize, 115);
+        const avtSize = 220;
+        drawAvatar(avatar1, 95, 110);
+        drawAvatar(avatar2, width - 95 - avtSize, 110);
 
-        // Score Text
+        // 4. Draw Pure Vector Heart in Center (No Missing Font Box Bug!)
+        function drawVectorHeart(fromX, fromY, hWidth, hHeight) {
+            ctx.save();
+            ctx.beginPath();
+            const topCurveHeight = hHeight * 0.3;
+            ctx.moveTo(fromX, fromY + topCurveHeight);
+            ctx.bezierCurveTo(fromX, fromY, fromX - hWidth / 2, fromY, fromX - hWidth / 2, fromY + topCurveHeight);
+            ctx.bezierCurveTo(fromX - hWidth / 2, fromY + (hHeight + topCurveHeight) / 2, fromX, fromY + hHeight, fromX, fromY + hHeight);
+            ctx.bezierCurveTo(fromX, fromY + hHeight, fromX + hWidth / 2, fromY + (hHeight + topCurveHeight) / 2, fromX + hWidth / 2, fromY + topCurveHeight);
+            ctx.bezierCurveTo(fromX + hWidth / 2, fromY, fromX, fromY, fromX, fromY + topCurveHeight);
+            ctx.closePath();
+            ctx.fillStyle = "#ff2a75";
+            ctx.fill();
+            ctx.restore();
+        }
+
+        drawVectorHeart(width / 2, 125, 80, 75);
+
+        // 5. Score Text (Clean Numbers Only)
         ctx.font = "bold 55px sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
-        ctx.fillText(`${score}%`, width / 2, 230);
+        ctx.fillText(`${score}%`, width / 2, 270);
 
-        // Names
+        // 6. User Names (Clean Font)
         ctx.font = "bold 28px sans-serif";
+        ctx.fillStyle = "#ffffff";
         const cleanName1 = name1.length > 13 ? name1.substring(0, 11) + ".." : name1;
         const cleanName2 = name2.length > 13 ? name2.substring(0, 11) + ".." : name2;
         ctx.fillText(cleanName1, 205, 385);
         ctx.fillText(cleanName2, width - 205, 385);
 
-        // Branding
+        // 7. Footer Branding (Pure ASCII Text)
         ctx.font = "bold 18px sans-serif";
         ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
         ctx.fillText("POWERED BY AHMAD RDX", width / 2, 435);
