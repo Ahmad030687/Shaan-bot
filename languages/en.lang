@@ -61,7 +61,7 @@ users.needObject=Must be an Object.
 
 handleCommand.userBanned=⛔️━━━━━━━━━━━━━━━━━━━━⛔️\n👑 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 𝐒𝐄𝐂𝐔𝐑𝐈𝐓𝐘 👑\n⛔️━━━━━━━━━━━━━━━━━━━━⛔️\n\n🤭 𝐓𝐔 𝐁𝐀𝐍𝐍𝐄𝐃 𝐇𝐀𝐈 𝐑𝐄 𝐓𝐔𝐓𝐈6𝐀! 🚫\n\n📌 Reason: %1\n📌 Date: %2\n\n💬 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐎𝐖𝐍𝐄𝐑 𝐅𝐎𝐑 𝐔𝐍𝐁𝐀𝐍:\n👑 Owner: AHMAD RDX\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🌐 FB: https://www.facebook.com/profile.php?id=100016828397863
 handleCommand.threadBanned=⛔️━━━━━━━━━━━━━━━━━━━━⛔️\n👑 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 𝐒𝐄𝐂𝐔𝐑𝐈𝐓𝐘 👑\n⛔️━━━━━━━━━━━━━━━━━━━━⛔️\n\n🚫 𝐘𝐎𝐔𝐑 𝐆𝐑𝐎𝐔𝐏 / 𝐁𝐎𝐗 𝐈𝐒 𝐁𝐀𝐍𝐍𝐄𝐃!\n\n📌 Reason: %1\n📌 Details: %2\n\n💬 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐎𝐖𝐍𝐄𝐑 𝐅𝐎𝐑 𝐔𝐍𝐁𝐀𝐍:\n👑 Owner: AHMAD RDX\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🌐 FB: https://www.facebook.com/profile.php?id=100016828397863
-handleCommand.commandNotExist=❌ 𝐒𝐀𝐇𝐈 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐊𝐄 𝐋𝐈𝐄 𝐎𝐖𝐍𝐄𝐑 𝐒𝐇𝐀𝐀𝐍 / 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 𝐒𝐄 𝐑𝐀𝐁𝐓𝐀 𝐊𝐀𝐑𝐎!\n\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n\n🤔 Did you mean: %1 ?
+handleCommand.commandNotExist=❌ 𝐒𝐀𝐇𝐈 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐊𝐄 𝐋𝐈𝐄 𝐎𝐖𝐍𝐄𝐑 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 𝐒𝐄 𝐑𝐀𝐁𝐓𝐀 𝐊𝐀𝐑𝐎!\n\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n\n🤔 Did you mean: %1 ?
 handleCommand.commandThreadBanned=⚠️ Your group is restricted from using command: "%1"
 handleCommand.commandUserBanned=⚠️ You are restricted from using command: "%1"
 handleCommand.threadNotAllowNSFW=🔞 This group is not allowed to use NSFW commands.
