@@ -1,5 +1,5 @@
 /**
- * Universal Command & Event Manager Engine
+ * Command & Event Manager Engine
  * Path: models/commands/cmdmanager.js
  * Repo Target: Ahmad030687/Shaan-bot
  * Credits: SARDAR RDX (Strictly preserved)
@@ -104,20 +104,20 @@ function registerEventToBot(localFilePath) {
     return false;
 }
 
-module.exports = {
-    config: {
-        name: 'cmdmanager',
-        aliases: ['addcmd', 'editcmd', 'cmd', 'load', 'editevt', 'addevt', 'evt'],
-        version: '4.5.0',
-        permission: 2,
-        credits: 'SARDAR RDX', // Strict core credit preserved
-        description: 'Direct Command & Event Manager by AHMAD RDX',
-        commandCategory: 'system',
-        cooldowns: 1
-    },
+module.exports.config = {
+    name: 'cmdmanager',
+    aliases: ['addcmd', 'editcmd', 'cmd', 'load', 'editevt', 'addevt', 'evt'],
+    version: '5.0.0',
+    permission: 2,
+    credits: 'SARDAR RDX', // Strict core credit preserved
+    description: 'Direct Command & Event Manager by AHMAD RDX',
+    commandCategory: 'system',
+    cooldowns: 1
+};
 
-    async run({ api, event, args }) {
-        const { threadID, messageID, body, type, messageReply } = event;
+module.exports.run = async function({ api, event, args }) {
+    try {
+        const { threadID, messageID, body, messageReply } = event;
         const cleanBody = (body || '').trim();
         const firstWord = cleanBody.split(/\s+/)[0].toLowerCase();
 
@@ -126,16 +126,15 @@ module.exports = {
         const targetDir = isEventMode ? eventsDir : commandsDir;
         const repoSubDir = isEventMode ? 'models/events' : 'models/commands';
 
+        if (!fs.existsSync(commandsDir)) fs.mkdirSync(commandsDir, { recursive: true });
         if (!fs.existsSync(eventsDir)) fs.mkdirSync(eventsDir, { recursive: true });
 
         if (!args[0]) {
             return api.sendMessage(
                 `✦━━━ ❪ 💡 COMMAND MANAGER ❫ ━━━✦\n\n` +
                 `📌 𝐔𝐒𝐀𝐆𝐄:\n` +
-                `1️⃣ Code message par Reply karke:\n` +
+                `1️⃣ Code message par Reply karke likhein:\n` +
                 `   👉 .editcmd <filename>\n\n` +
-                `2️⃣ Direct Code Paste:\n` +
-                `   👉 .editcmd <filename> <CODE>\n\n` +
                 `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`,
                 threadID,
                 messageID
@@ -147,49 +146,33 @@ module.exports = {
         const localFilePath = path.join(targetDir, fileName);
         const githubPath = `${repoSubDir}/${fileName}`;
 
-        // -------------------------------------------------------------
-        // CASE 1: REPLY TO CODE MESSAGE
-        // -------------------------------------------------------------
-        if (type === 'message_reply' && messageReply && messageReply.body) {
+        // Safe check for message reply
+        if (messageReply && messageReply.body) {
             const codeContent = messageReply.body.trim();
 
-            try {
-                await fs.writeFile(localFilePath, codeContent, 'utf8');
-                const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
+            await fs.writeFile(localFilePath, codeContent, 'utf8');
+            const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
 
-                const sha = await getGithubFileSha(githubPath);
-                const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} via Reply`, sha);
+            const sha = await getGithubFileSha(githubPath);
+            const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} via Reply`, sha);
 
-                const statusMsg = 
-                    `✦━━ ❪ ⚙️ ${targetType.toUpperCase()} SAVED ❫ ━━✦\n\n` +
-                    `📁 File: ${repoSubDir}/${fileName}\n` +
-                    `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
-                    `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
-                    `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
+            const statusMsg = 
+                `✦━━ ❪ ⚙️ ${targetType.toUpperCase()} SAVED ❫ ━━✦\n\n` +
+                `📁 File: ${repoSubDir}/${fileName}\n` +
+                `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
+                `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
+                `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
 
-                return api.sendMessage(statusMsg, threadID, messageID);
-            } catch (err) {
-                return api.sendMessage(`❌ Save Error: ${err.message}`, threadID, messageID);
-            }
+            return api.sendMessage(statusMsg, threadID, messageID);
         }
 
-        // -------------------------------------------------------------
-        // CASE 2: DIRECT PASTE IN ONE MESSAGE (.editcmd pair <code>)
-        // -------------------------------------------------------------
+        // Direct code paste check
         if (args.length >= 2) {
             const firstSpaceIndex = cleanBody.indexOf(' ');
             const secondSpaceIndex = cleanBody.indexOf(' ', firstSpaceIndex + 1);
-            
-            let codeContent = '';
-            if (secondSpaceIndex !== -1) {
-                codeContent = cleanBody.substring(secondSpaceIndex).trim();
-            }
+            let codeContent = secondSpaceIndex !== -1 ? cleanBody.substring(secondSpaceIndex).trim() : '';
 
-            if (!codeContent) {
-                return api.sendMessage("❌ Code extract nahi ho saka! Reply method use karein.", threadID, messageID);
-            }
-
-            try {
+            if (codeContent) {
                 await fs.writeFile(localFilePath, codeContent, 'utf8');
                 const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
 
@@ -204,23 +187,19 @@ module.exports = {
                     `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
 
                 return api.sendMessage(statusMsg, threadID, messageID);
-            } catch (err) {
-                return api.sendMessage(`❌ Save Error: ${err.message}`, threadID, messageID);
             }
         }
 
-        // -------------------------------------------------------------
-        // CASE 3: READ CODE OR NO REPLY/CODE PROVIDED
-        // -------------------------------------------------------------
+        // View file code if exists
         if (fs.existsSync(localFilePath)) {
-            try {
-                const oldCode = await fs.readFile(localFilePath, 'utf8');
-                return api.sendMessage(`📜 Source code for "${fileName}":\n\n\`\`\`javascript\n${oldCode}\n\`\`\``, threadID, messageID);
-            } catch (err) {
-                return api.sendMessage(`❌ Read Error: ${err.message}`, threadID, messageID);
-            }
+            const oldCode = await fs.readFile(localFilePath, 'utf8');
+            return api.sendMessage(`📜 Source code for "${fileName}":\n\n\`\`\`javascript\n${oldCode}\n\`\`\``, threadID, messageID);
         }
 
-        return api.sendMessage(`❌ File "${repoSubDir}/${fileName}" nahi mili!\n\n👉 Code bhej kar us par reply karein: .editcmd ${fileNameOnly}`, threadID, messageID);
+        return api.sendMessage(`❌ File "${repoSubDir}/${fileName}" nahi mili! Code bhej kar us par reply karein.`, threadID, messageID);
+
+    } catch (err) {
+        console.error("[CMDMANAGER CRITICAL ERROR]:", err);
+        return api.sendMessage(`❌ Error aa gaya: ${err.message}`, event.threadID, event.messageID);
     }
 };
