@@ -1,10 +1,17 @@
+/**
+ * Module: Link Auto Downloader
+ * Path: Sardar/commands/linkAutoDownload.js
+ * Credits: Shaan Babu (Strictly preserved)
+ * Upgraded & Branded by: AHMAD RDX
+ */
+
 module.exports = {
   config: {
     name: "linkAutoDownload",
-    version: "1.5.0",
+    version: "2.0.0",
     hasPermssion: 0,
-    credits: "Shaan Babu",
-    description: "Downloads video and shows its original title.",
+    credits: "Shaan Babu", // Strict core credit preserved
+    description: "Auto-downloads videos from URLs with ultra-premium AHMAD RDX branding",
     commandCategory: "Utilities",
     usages: "",
     cooldowns: 5,
@@ -37,23 +44,34 @@ module.exports = {
       const data = await alldown(body);
 
       if (!data || !data.data || !data.data.high) {
-        return api.sendMessage("❌ Valid download link not found.", event.threadID);
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
+        return api.sendMessage("❌ [ AHMAD RDX ] Valid download link or stream not found!", event.threadID, event.messageID);
       }
 
-      // Video ka title nikalne ki koshish (Agar api provide karti hai)
-      // Aksar data.data.title ya data.title mein hota hai
-      const videoTitle = data.data.title || data.title || "No Title Found";
+      const videoTitle = data.data.title || data.title || "Auto Downloaded Media";
       const videoURL = data.data.high;
-      const filePath = __dirname + `/cache/auto_${event.senderID}.mp4`;
+      const filePath = __dirname + `/cache/auto_${event.senderID}_${Date.now()}.mp4`;
 
       const response = await axios.get(videoURL, { responseType: "arraybuffer" });
       fs.writeFileSync(filePath, Buffer.from(response.data, "utf-8"));
 
       api.setMessageReaction("✅", event.messageID, () => {}, true);
 
+      const downloadText = 
+        "╔════════════════════════╗\n" +
+        "║  ⚡ AUTO DOWNLOADER ⚡  ║\n" +
+        "╚════════════════════════╝\n\n" +
+        `🎬 Title: ${videoTitle}\n` +
+        "⚡ Status: Downloaded Successfully!\n\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+        "👑 POWERED BY: AHMAD RDX\n" +
+        "📱 WhatsApp: +92306*******\n" +
+        "✈️ Telegram: ahmadalisafdar3\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
       return api.sendMessage(
         {
-          body: `✨❁ ━━ ━[ 𝐎𝐖𝐍𝐄𝐑 ]━ ━━ ❁✨\n\nᴛɪᴛʟᴇ: ${videoTitle}\n\n✨❁ ━━ ━[ 𝑺𝑯𝑨𝑨𝑵 ]━ ━━ ❁✨`,
+          body: downloadText,
           attachment: fs.createReadStream(filePath),
         },
         event.threadID,
