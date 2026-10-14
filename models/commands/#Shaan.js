@@ -1,6 +1,6 @@
 const fs = require("fs");
 module.exports.config = {
-  name: "SHAAN",
+  name: "Ahmad",
     version: "2.1.1",
   hasPermssion: 0,
   credits: "𝐒𝐇𝐀𝐀𝐍 𝐊𝐇𝐀𝐍", 
@@ -14,7 +14,7 @@ module.exports.handleEvent = async ({ api, event, Users, Currencies, args, utils
   var { threadID, messageID } = event;
   let react = event.body.toLowerCase();
   if(react.includes("shan khan") ||
-     react.includes("Shaan Khan") || react.includes("SHAAN") || react.includes("shaan") ||
+     react.includes("Shaan Khan") || react.includes("Ahmad") || react.includes("ahmad") ||
 react.includes("shan") ||
 react.includes("SHAAN KHAN") ||     
 react.includes("Shaan")) {
