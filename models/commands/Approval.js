@@ -1,143 +1,235 @@
+/**
+ * Module: Group Approval System
+ * Path: Sardar/commands/approve.js
+ * Credits: MR.SHAAN (Strictly preserved)
+ * Upgraded & Branded by: AHMAD RDX
+ */
+
+const fs = require("fs-extra");
+const path = require("path");
+
+const dataPath = path.join(__dirname, "cache", "approvedThreads.json");
+const dataPending = path.join(__dirname, "cache", "pendingdThreads.json");
+
 module.exports.config = {
-        name: "approve",
-        version: "1.0.2",
-        hasPermssion: 2,
-        credits: "MR.SHAAN",
-        description: "THIS BOT IS MR. SHAAN",
-        commandCategory: "Admin",
-    cooldowns: 5
+  name: "approve",
+  version: "2.0.0",
+  hasPermssion: 2,
+  credits: "MR.SHAAN", // Strict core credit preserved
+  description: "Group approval management module with ultra-premium AHMAD RDX branding",
+  commandCategory: "Admin",
+  cooldowns: 5
 };
 
-
-const dataPath = __dirname + "/cache/approvedThreads.json";
-const dataPending = __dirname + "/cache/pendingdThreads.json";
-const fs = require("fs");
-
 module.exports.onLoad = () => {
-        if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
+  const cacheDir = path.join(__dirname, "cache");
+  if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+  if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
   if (!fs.existsSync(dataPending)) fs.writeFileSync(dataPending, JSON.stringify([]));
-}
-module.exports.handleReply = async function ({ event, api, Currencies, handleReply, Users, args }) {
-    if (handleReply.author != event.senderID) return;
-    const { body, threadID, messageID, senderID } = event;
-    const { type } = handleReply;
-    let data = JSON.parse(fs.readFileSync(dataPath));
-    let dataP = JSON.parse(fs.readFileSync(dataPending));
-    let idBox = (args[0]) ? args[0] : threadID;
+};
+
+module.exports.handleReply = async function ({ event, api, handleReply, args }) {
+  if (handleReply.author != event.senderID) return;
+  const { body, threadID, messageID } = event;
+  const { type } = handleReply;
+
+  let data = JSON.parse(fs.readFileSync(dataPath));
+  let dataP = JSON.parse(fs.readFileSync(dataPending));
+  let idBox = (args && args[0]) ? args[0] : threadID;
+
   switch (type) {
-        case "pending": {
-          switch (body) {
-                case `A`: {
-                           data.push(idBox);
-                           fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-                           api.sendMessage(`💐𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐒𝐇𝐀𝐀𝐍 𝐁𝐎𝐓 𝐁𝐀𝐁𝐘💐 😇👈
-=𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹●============================================================● 💐𝐀𝐏𝐊𝐄 𝐆𝐑𝐎𝐔𝐏 𝐊𝐎 𝐌𝐄𝐑𝐄 𝐁𝐎𝐒𝐒 𝐀𝐑𝐘𝐀𝐍 𝐍𝐄 𝐀𝐏𝐏𝐑𝐎𝐕𝐄 𝐊𝐀𝐑 𝐃8𝐘𝐀 𝐇𝐀𝐈𝐈💐 =𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹\n${idBox}`, threadID, () => {
-          dataP.splice(dataP.indexOf(idBox), 1);
-                    fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
-            }, messageID)
-        }
-        }
+    case "pending": {
+      if (body.toUpperCase() === "A") {
+        if (!data.includes(idBox)) data.push(idBox);
+        fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+        const welcomeMsg = 
+          "╔════════════════════════╗\n" +
+          "║  🎉 GROUP APPROVED! 🎉  ║\n" +
+          "╚════════════════════════╝\n\n" +
+          "💐 Mubarak Ho! Aapke group ko AHMAD RDX ne approve kar diya hai.\n\n" +
+          "📌 System Status: ONLINE & ACTIVE\n" +
+          `🆔 Approved GC ID: ${idBox}\n\n` +
+          "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+          "👑 SYSTEM OWNER: AHMAD RDX\n" +
+          "📱 WhatsApp: +92306*******\n" +
+          "✈️ Telegram: ahmadalisafdar3\n" +
+          "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+        api.sendMessage(welcomeMsg, threadID, () => {
+          if (dataP.includes(idBox)) {
+            dataP.splice(dataP.indexOf(idBox), 1);
+            fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
+          }
+        }, messageID);
+      }
+      break;
+    }
+  }
+};
+
+module.exports.run = async ({ event, api, args, Threads, Users }) => {
+  const { threadID, messageID } = event;
+
+  let data = JSON.parse(fs.readFileSync(dataPath));
+  let dataP = JSON.parse(fs.readFileSync(dataPending));
+  let idBox = (args[0] && !isNaN(args[0])) ? args[0] : threadID;
+
+  // ===== LIST APPROVED GROUPS =====
+  if (args[0] == "list" || args[0] == "l") {
+    let msg = 
+      "╔════════════════════════╗\n" +
+      `║ 📜 APPROVED GROUPS (${data.length}) ║\n` +
+      "╚════════════════════════╝\n\n";
+
+    let count = 0;
+    for (let e of data) {
+      try {
+        let threadInfo = await api.getThreadInfo(e);
+        let threadName = threadInfo.threadName ? threadInfo.threadName : await Users.getNameUser(e);
+        msg += `✨ [ ${++count} ] ➔ ${threadName}\n🆔 ID: ${e}\n\n`;
+      } catch (err) {
+        msg += `✨ [ ${++count} ] ➔ Unknown Group\n🆔 ID: ${e}\n\n`;
       }
     }
-  }
-module.exports.run = async ({ event, api, args, Threads, handleReply, Users }) => {
-        const { threadID, messageID, senderID } = event;
-        let data = JSON.parse(fs.readFileSync(dataPath));
-  let dataP = JSON.parse(fs.readFileSync(dataPending));
-  let msg = "";
-  var lydo = args.splice(2).join(" ");
-  let idBox = (args[0]) ? args[0] : threadID;
-        if (args[0] == "list" || args[0] == "l") {
-            msg = `=====「 GC THAT HAD BEEN APPROVED: ${data.length} 」 ====`;
-            let count = 0;
-            for (e of data) {
-        let threadInfo = await api.getThreadInfo(e);
-          let threadName = threadInfo.threadName ? threadInfo.threadName : await Users.getNameUser(e);
-                    msg += `\n〘${count+=1}〙» ${threadName}\n${e}`;
-            }
-            api.sendMessage(msg, threadID, (error, info) => {
-        global.client.handleReply.push({
-            name: this.config.name,
-            messageID: info.messageID,
-            author: event.senderID,
-            type: "a",
-        })
-    }, messageID);
-        }
-     else if (args[0] == "pending" || args[0] == "p") {
-            msg = `=====「 THREADS NEED TO BE APPROVE: ${dataP.length} 」 ====`;
-            let count = 0;
-            for (e of dataP) {
-        let threadInfo = await api.getThreadInfo(e);
-          let threadName = threadInfo.threadName ? threadInfo.threadName : await Users.getNameUser(e);
-                    msg += `\n〘${count+=1}〙» ${threadName}\n${e}`;
-            }
-            api.sendMessage(msg, threadID, (error, info) => {
-        global.client.handleReply.push({
-            name: this.config.name,
-            messageID: info.messageID,
-            author: event.senderID,
-            type: "pending",
-        })
-    }, messageID);
-     }
-       else if (args[0] == "help" || args[0] == "h") {
-         const tst = (await Threads.getData(String(event.threadID))).data || {};
-  const pb = (tst.hasOwnProperty("PREFIX")) ? tst.PREFIX : global.config.PREFIX;
-  const nmdl = this.config.name
-  const cre = this.config.credits
-        return api.sendMessage(`=====「 APPROVE 」=====\n\n${pb}${nmdl} l/list => see list of approved boxes\n\n${pb}${nmdl} p/pending => see the list of unapproved boxes\n\n${pb}${nmdl} d/del => with ID to remove from bot used list\n\n${pb}${nmdl} => Attach an ID to browse that box\n\n⇒ ${cre} ⇐`, threadID, messageID);
-       }
 
-    else if (args[0] == "del" || args[0] == "d") {
-            idBox = (args[1]) ? args[1] : event.threadID;
-      if (isNaN(parseInt(idBox))) return api.sendMessage("[ ERR ] Not a number", threadID, messageID);
-            if (!data.includes(idBox)) return api.sendMessage("[ ERR ] Box is not pre-approved!", threadID, messageID);
-      api.sendMessage(`[ OK ] Your group has been removed from the browsing list by the admin for the reason: ${lydo}`, idBox);
-            api.sendMessage(`[ OK ] Box has been removed from the list of allowed bots`, threadID, () => {
-                    data.splice(data.indexOf(idBox), 1);
-                    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-            }, messageID)
+    msg += 
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX\n" +
+      "📱 WhatsApp: +92306*******";
+
+    return api.sendMessage(msg, threadID, (error, info) => {
+      global.client.handleReply.push({
+        name: this.config.name,
+        messageID: info.messageID,
+        author: event.senderID,
+        type: "a",
+      });
+    }, messageID);
+  }
+
+  // ===== LIST PENDING GROUPS =====
+  else if (args[0] == "pending" || args[0] == "p") {
+    let msg = 
+      "╔════════════════════════╗\n" +
+      `║ ⏳ PENDING GROUPS (${dataP.length}) ║\n` +
+      "╚════════════════════════╝\n\n";
+
+    let count = 0;
+    for (let e of dataP) {
+      try {
+        let threadInfo = await api.getThreadInfo(e);
+        let threadName = threadInfo.threadName ? threadInfo.threadName : await Users.getNameUser(e);
+        msg += `✨ [ ${++count} ] ➔ ${threadName}\n🆔 ID: ${e}\n\n`;
+      } catch (err) {
+        msg += `✨ [ ${++count} ] ➔ Unknown Group\n🆔 ID: ${e}\n\n`;
+      }
     }
-    else if (isNaN(parseInt(idBox))) api.sendMessage("[ ERR ] The ID you entered is not valid", threadID, messageID);
-    else if (data.includes(idBox)) api.sendMessage(`[ - ] ID ${idBox} pre-approved!`, threadID, messageID);
-           else api.sendMessage("💐𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐒𝐇𝐀𝐀𝐍 𝐁𝐎𝐓 𝐁𝐀𝐁𝐘💐 😇●============================================================● 💐𝐀𝐏𝐊𝐄 𝐆𝐑𝐎𝐔𝐏 𝐊𝐎 𝐌𝐄𝐑𝐄 𝐁𝐎𝐒𝐒 𝐒𝐇𝐀𝐀𝐍 𝐍𝐄 𝐀𝐏𝐏𝐑𝐎𝐕𝐄 𝐊𝐀𝐑 𝐃8𝐘𝐀 𝐇𝐀𝐈𝐈💐 𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹 \n✧●============================================================●\n●====== 𝐀𝐁𝐁  𝐊𝐀𝐑𝐎  𝐌𝐄𝐒𝐓𝐈 =====●\n●============================================================●\n=𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹\n●============================================================●\n𝐀𝐩𝐏𝐤𝐀 𝐏𝐲𝐑𝐚 𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹 \n●============================================================●\n𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐢𝐝 𝐥𝐢𝐧𝐤 😊👈 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 :- ☞ \n\hhttps://www.facebook.com/profile.php?id=100016828397863\n●============================================================●\n💐𝐊𝐈𝐒𝐈 𝐁𝐇𝐈 𝐓𝐀𝐑𝐀𝐇 𝐊𝐈 𝐇𝐄𝐋𝐏 𝐋𝐄𝐍𝐄 𝐊 𝐋𝐈𝐘𝐄 𝐌𝐄𝐑𝐄 𝐁𝐎𝐒𝐒 𝐒𝐄 𝐁𝐀𝐓 𝐊𝐀𝐑𝐎💐 𝐎𝐰𝐧𝐞𝐫 ➻    🌹 𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 🌹●============================================================● 👉 [💐𝐑𝐄𝐀𝐋𝐓𝐈𝐎𝐍𝐒𝐇𝐈𝐏💐:🥀 ]", idBox, (error, info) => {
-                   api.changeNickname(` 〖 ${global.config.PREFIX} 〗 ➺ ${(!global.config.BOTNAME) ? "" : global.config.BOTNAME}`, idBox, global.data.botID);
-      const axios = require('axios');
-        const request = require('request');
-        const fs = require("fs");
-   let admID = "100016828397863";    
 
-      api.getUserInfo(parseInt(admID), (err, data) => {
-      if(err){ return console.log(err)}
-     var obj = Object.keys(data);
-    var firstname = data[obj].name.replace("@", "");  
+    msg += 
+      "💡 Reply 'A' on pending item to approve!\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX";
 
-      axios.get('https://api.satou-chan.xyz/api/endpoint/happy').then(res => {
-        let ext = res.data.url.substring(res.data.url.lastIndexOf(".") + 1);
-        let callback = function () {
-      api.sendMessage({body: `❒❒ 💐𝐁𝐀𝐁𝐘 𝐁𝐎𝐓 𝐀𝐑𝐄 𝐍𝐎𝐖 𝐂𝐎𝐍𝐍𝐄𝐂𝐓𝐄𝐃💐 ❒❒\n=====================\n┏━━━━ 🖤 ━━━━┓
-  ✦❥⋆⃝𝐌𝐑.𝐒𝐇𝐀𝐀𝐍 シ︎
-
-┗━━━    🖤 ━━━━┛\n=====================\n➪ BOT: ${global.config.BOTNAME}\n➪ Prefix: ${global.config.PREFIX}\n➪ Users: ${global.data.allUserID.length}\n➪ Groups: ${global.data.allThreadID.length}\n=====================\n[]---------------------------------------[]\nUse '${global.config.PREFIX}Help' T0o View The Commands That Available! 💖\n[]---------------------------------------[]\n⌨ Made by: ${firstname}\n`, mentions: [{
-                           tag: firstname,
-                           id: admID,
-                           fromIndex: 0,
-                 }],
-                                                attachment: fs.createReadStream(__dirname + `/cache/duyet.${ext}`)
-                                        }, idBox,() => fs.unlinkSync(__dirname + `/cache/duyet.${ext}`));
-                                };
-                                request(res.data.url).pipe(fs.createWriteStream(__dirname + `/cache/duyet.${ext}`)).on("close", callback);
-                        }) 
-      })
-                   if (error) return api.sendMessage("[ ERR ] Something went wrong, make sure the id you entered is valid and the bot is in the box!", threadID, messageID);
-                   else {
-                           data.push(idBox);
-                           fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-                           api.sendMessage(`[ OK ] Successfully Approved The Box (◕‿◕):\n${idBox}`, threadID, () => {
-          dataP.splice(dataP.indexOf(idBox), 1);
-                    fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
-            }, messageID)
-        }
-           });
+    return api.sendMessage(msg, threadID, (error, info) => {
+      global.client.handleReply.push({
+        name: this.config.name,
+        messageID: info.messageID,
+        author: event.senderID,
+        type: "pending",
+      });
+    }, messageID);
   }
+
+  // ===== HELP MENU =====
+  else if (args[0] == "help" || args[0] == "h") {
+    const threadData = (await Threads.getData(String(threadID))).data || {};
+    const prefix = threadData.PREFIX || global.config.PREFIX;
+
+    const helpText = 
+      "╔════════════════════════╗\n" +
+      "║  📖 APPROVAL COMMANDS  ║\n" +
+      "╚════════════════════════╝\n\n" +
+      `⚡ ${prefix}approve l/list ➔ View list of approved groups\n` +
+      `⚡ ${prefix}approve p/pending ➔ View list of pending groups\n` +
+      `⚡ ${prefix}approve d/del [ID] ➔ Remove a group from approved list\n` +
+      `⚡ ${prefix}approve [ID] ➔ Directly approve specified group ID\n\n` +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX\n" +
+      "📱 WhatsApp: +92306*******\n" +
+      "✈️ Telegram: ahmadalisafdar3\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+    return api.sendMessage(helpText, threadID, messageID);
+  }
+
+  // ===== REMOVE / UNAPPROVE GROUP =====
+  else if (args[0] == "del" || args[0] == "d") {
+    idBox = (args[1]) ? args[1] : threadID;
+    const reason = args.slice(2).join(" ") || "No reason specified";
+
+    if (isNaN(parseInt(idBox))) {
+      return api.sendMessage("❌ [ AHMAD RDX ] Provided ID is not a valid number!", threadID, messageID);
+    }
+    if (!data.includes(idBox)) {
+      return api.sendMessage("❌ [ AHMAD RDX ] Specified box is not pre-approved!", threadID, messageID);
+    }
+
+    const removeNotice = 
+      "╔════════════════════════╗\n" +
+      "║ ⚠️ APPROVAL REVOKED    ║\n" +
+      "╚════════════════════════╝\n\n" +
+      "❌ Aapke group ki approval AHMAD RDX dwara khatam kar di gayi hai.\n" +
+      `💬 Reason: ${reason}\n\n` +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX";
+
+    api.sendMessage(removeNotice, idBox);
+
+    data.splice(data.indexOf(idBox), 1);
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+    return api.sendMessage(`✅ [ AHMAD RDX ] Group ${idBox} successfully removed from approved list!`, threadID, messageID);
+  }
+
+  // ===== DIRECT APPROVE PROCESS =====
+  else {
+    if (isNaN(parseInt(idBox))) {
+      return api.sendMessage("❌ [ AHMAD RDX ] Invalid Group ID provided!", threadID, messageID);
+    }
+
+    if (data.includes(idBox)) {
+      return api.sendMessage(`ℹ️ [ AHMAD RDX ] Group ID ${idBox} is already approved!`, threadID, messageID);
+    }
+
+    const approveNotice = 
+      "╔════════════════════════╗\n" +
+      "║  💐 GROUP APPROVED 💐  ║\n" +
+      "╚════════════════════════╝\n\n" +
+      "🎉 MUBARAK HO! Aapka group AHMAD RDX dwaara approve ho chuka hai!\n\n" +
+      "⚡ Ab aap bot ke tamam features mazay se istemal kar sakte hain.\n" +
+      `💡 Type '${global.config.PREFIX}help' to view command list.\n\n` +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+      "👑 SYSTEM OWNER: AHMAD RDX\n" +
+      "📱 WhatsApp: +92306*******\n" +
+      "✈️ Telegram: ahmadalisafdar3\n" +
+      "🔗 Facebook: https://www.facebook.com/profile.php?id=100002944872037\n" +
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+    api.sendMessage(approveNotice, idBox, (error) => {
+      if (error) {
+        return api.sendMessage("❌ [ AHMAD RDX ] Approval failed! Make sure the bot is inside the target group.", threadID, messageID);
+      } else {
+        if (!data.includes(idBox)) data.push(idBox);
+        fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+        if (dataP.includes(idBox)) {
+          dataP.splice(dataP.indexOf(idBox), 1);
+          fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
+        }
+
+        return api.sendMessage(`✅ [ AHMAD RDX ] Successfully Approved Box ID: ${idBox}`, threadID, messageID);
+      }
+    });
+  }
+};
