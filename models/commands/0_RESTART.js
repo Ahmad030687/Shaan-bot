@@ -1,23 +1,58 @@
+/**
+ * Module: Restart (System Reboot Command)
+ * Path: Sardar/commands/restart.js
+ * Credits: mirai (Strictly preserved)
+ * Upgraded & Branded by: AHMAD RDX
+ */
+
 module.exports.config = {
   name: "restart",
-  version: "1.0.0",
+  version: "2.0.0",
   hasPermssion: 0,
-  credits: "mirai",
-  description: "Restart the Bot",
+  credits: "mirai", // Strict core credit preserved
+  description: "Restarts the bot system safely with ultra-premium AHMAD RDX countdown",
   commandCategory: "system",
   usages: "",
   cooldowns: 5
 };
 
-module.exports.run = async function ({ api, args, Users, event }) {
-  var mention = Object.keys(event.mentions)[0];
-  let name = event.mentions[mention];
-  var arraytag = [];
-  arraytag.push({ id: mention });
-  var a = function (a) { api.sendMessage(a, event.threadID); }
-  a("✅𝙎𝙝𝙖𝙖𝙣 𝘽𝙤𝙨𝙨 𝘽𝙤𝙩 𝙍𝙚𝙨𝙩𝙖𝙧𝙩𝙞𝙣𝙜 𝙃𝙤 𝙍𝙖𝙝𝙖 𝙃𝙖𝙞..");
-  setTimeout(() => { a({ body: "3.." }) }, 5000);
-  setTimeout(() => { a({ body: "2.." }) }, 10000);
-  setTimeout(() => { a({ body: "1.." }) }, 15000);
-  setTimeout(() => { api.sendMessage("⏳𝙏𝙝𝙤𝙧𝙖 𝙒𝙖𝙞𝙩 𝙆𝙖𝙧𝙤 , 𝙍𝙚𝙗𝙤𝙤𝙩𝙞𝙣𝙜..𝙃𝙤 𝙍𝙖𝙝𝙖 𝙃𝙖𝙞", event.threadID, () => process.exit(1)) }, 20000);
+module.exports.run = async function ({ api, event }) {
+  const { threadID, messageID } = event;
+
+  const initialMsg = 
+    "╔════════════════════════╗\n" +
+    "║  ⚙️ SYSTEM RESTART INIT ⚙️ ║\n" +
+    "╚════════════════════════╝\n\n" +
+    "⚡ Initializing System Reboot Sequence...\n" +
+    "⏳ Please wait while AHMAD RDX Bot refreshes.\n\n" +
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+    "👑 SYSTEM OWNER: AHMAD RDX\n" +
+    "📱 WhatsApp: +92306*******\n" +
+    "✈️ Telegram: ahmadalisafdar3\n" +
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+  api.sendMessage(initialMsg, threadID, messageID);
+
+  setTimeout(() => { 
+    api.sendMessage("⌛ Rebooting in: 3 Seconds...", threadID); 
+  }, 3000);
+
+  setTimeout(() => { 
+    api.sendMessage("⌛ Rebooting in: 2 Seconds...", threadID); 
+  }, 6000);
+
+  setTimeout(() => { 
+    api.sendMessage("⌛ Rebooting in: 1 Second...", threadID); 
+  }, 9000);
+
+  setTimeout(() => { 
+    const finalMsg = 
+      "╔════════════════════════╗\n" +
+      "║ 🔄 REBOOTING NOW...    ║\n" +
+      "╚════════════════════════╝\n\n" +
+      "⚡ Clearing memory cache and restarting PM2 process.\n" +
+      "🔌 Bot will be back online in a few seconds!";
+
+    api.sendMessage(finalMsg, threadID, () => process.exit(1));
+  }, 12000);
 };
