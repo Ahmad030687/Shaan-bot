@@ -637,12 +637,12 @@ module.exports.run = async function ({ api, event, Users }) {
                 ? "🎯 Perfect Headshot Match!"
                 : score > 50
                     ? "💥 Strong Duo!"
-                    : "⚠️ Loot Together & Try Again!";
+                    : "⚠️ Enjoying Together & Try Again!";
 
         const msgBody =
-            `🎮 𝐁𝐆𝐌𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐏𝐀𝐈𝐑 🎮\n\n` +
-            `🔫 Player 1: ${name1}\n` +
-            `🎯 Player 2: ${name2}\n\n` +
+            `🎮 𝐀𝐇𝐌𝐀𝐃 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐏𝐀𝐈𝐑 🎮\n\n` +
+            `🔫 Member 1: ${name1}\n` +
+            `🎯 Member 2: ${name2}\n\n` +
             `💖 Pair Score: ${score}%\n` +
             `${matchStatus}\n\n` +
             `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
