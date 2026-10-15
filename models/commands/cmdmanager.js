@@ -1,8 +1,9 @@
 /**
- * Command & Event Manager Engine
+ * Command & Event Manager Engine (Interactive & Auto .js)
  * Path: models/commands/cmdmanager.js
+ * Repo Target: Ahmad030687/Shaan-bot
  * Credits: SARDAR RDX (Strictly preserved)
- * Upgraded & Fixed by: AHMAD RDX
+ * Upgraded & Powered by: AHMAD RDX
  */
 
 const fs = require('fs-extra');
@@ -83,43 +84,89 @@ function registerCommandToBot(localFilePath) {
     return false;
 }
 
+function registerEventToBot(localFilePath) {
+    try {
+        if (require.cache[require.resolve(localFilePath)]) {
+            delete require.cache[require.resolve(localFilePath)];
+        }
+        const pull = require(localFilePath);
+        global.client = global.client || {};
+        global.client.events = global.client.events || new Map();
+
+        if (pull.config && pull.config.name) {
+            const evtName = pull.config.name.toLowerCase();
+            global.client.events.set(evtName, pull);
+            return true;
+        }
+    } catch (err) {
+        console.error('[AHMAD RDX Event Load Error]:', err.message);
+    }
+    return false;
+}
+
 module.exports.config = {
     name: 'cmdmanager',
     aliases: ['addcmd', 'editcmd', 'cmd', 'load', 'editevt', 'addevt', 'evt'],
-    version: '6.0.0',
+    version: '10.0.0',
     permission: 2,
     credits: 'SARDAR RDX', // Strict core credit preserved
-    description: 'Direct Command Manager by AHMAD RDX',
+    description: 'Direct Command & Event Manager with Prompt Flow by AHMAD RDX',
     commandCategory: 'system',
     cooldowns: 1
 };
 
 module.exports.run = async function({ api, event, args }) {
     try {
-        const { threadID, messageID, type, messageReply } = event;
+        const { threadID, messageID, body, messageReply } = event;
+        const cleanBody = (body || '').trim();
+        const firstWord = cleanBody.split(/\s+/)[0].toLowerCase();
+
+        const isEventMode = ['editevt', 'addevt', 'evt'].some(alias => firstWord.includes(alias));
+        const targetType = isEventMode ? 'Event' : 'Command';
+        const targetDir = isEventMode ? eventsDir : commandsDir;
+        const repoSubDir = isEventMode ? 'models/events' : 'models/commands';
+
+        if (!fs.existsSync(commandsDir)) fs.mkdirSync(commandsDir, { recursive: true });
+        if (!fs.existsSync(eventsDir)) fs.mkdirSync(eventsDir, { recursive: true });
 
         if (!args[0]) {
-            return api.sendMessage("💡 Usage: Code message par reply karke '.editcmd <cmd_name>' likhein.", threadID, messageID);
+            return api.sendMessage(
+                `✦━━━ ❪ 💡 COMMAND MANAGER ❫ ━━━✦\n\n` +
+                `📌 𝐔𝐒𝐀𝐆𝐄:\n` +
+                `1️⃣ New Command Add:\n` +
+                `   👉 .addcmd <command_name>\n` +
+                `   (Bot reply karega, us msg par code paste karein)\n\n` +
+                `2️⃣ Edit via Reply:\n` +
+                `   👉 Code msg par Reply karke: .editcmd <command_name>\n\n` +
+                `3️⃣ Direct Code Paste:\n` +
+                `   👉 .editcmd <command_name> <CODE_PASTE>\n\n` +
+                `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`,
+                threadID,
+                messageID
+            );
         }
 
+        // Automatic .js extension attachment & clean name
         const fileNameOnly = args[0].toLowerCase().trim().replace(/\.js$/, '');
         const fileName = `${fileNameOnly}.js`;
-        const localFilePath = path.join(commandsDir, fileName);
-        const githubPath = `models/commands/${fileName}`;
+        const localFilePath = path.join(targetDir, fileName);
+        const githubPath = `${repoSubDir}/${fileName}`;
 
-        // Safe Message Reply Detection
-        if (type === 'message_reply' && messageReply && messageReply.body) {
+        // -------------------------------------------------------------
+        // FLOW 1: MESSAGE REPLY (Code is in the replied message)
+        // -------------------------------------------------------------
+        if (messageReply && messageReply.body) {
             const codeContent = messageReply.body.trim();
 
             await fs.writeFile(localFilePath, codeContent, 'utf8');
-            const loaded = registerCommandToBot(localFilePath);
+            const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
 
             const sha = await getGithubFileSha(githubPath);
-            const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} via Reply`, sha);
+            const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} via Reply Flow`, sha);
 
             const statusMsg = 
-                `✦━━ ❪ ⚙️ COMMAND SAVED ❫ ━━✦\n\n` +
-                `📁 File: models/commands/${fileName}\n` +
+                `✦━━ ❪ ⚙️ ${targetType.toUpperCase()} SAVED ❫ ━━✦\n\n` +
+                `📁 Location: ${repoSubDir}/${fileName}\n` +
                 `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
                 `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
                 `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
@@ -127,15 +174,45 @@ module.exports.run = async function({ api, event, args }) {
             return api.sendMessage(statusMsg, threadID, messageID);
         }
 
-        if (fs.existsSync(localFilePath)) {
-            const oldCode = await fs.readFile(localFilePath, 'utf8');
-            return api.sendMessage(`📜 Code for "${fileName}":\n\n\`\`\`javascript\n${oldCode}\n\`\`\``, threadID, messageID);
+        // -------------------------------------------------------------
+        // FLOW 2: DIRECT PASTE IN ONE MESSAGE (.editcmd pair <code>)
+        // -------------------------------------------------------------
+        if (args.length >= 2) {
+            const firstSpaceIndex = cleanBody.indexOf(' ');
+            const secondSpaceIndex = cleanBody.indexOf(' ', firstSpaceIndex + 1);
+            let codeContent = secondSpaceIndex !== -1 ? cleanBody.substring(secondSpaceIndex).trim() : '';
+
+            if (codeContent) {
+                await fs.writeFile(localFilePath, codeContent, 'utf8');
+                const loaded = isEventMode ? registerEventToBot(localFilePath) : registerCommandToBot(localFilePath);
+
+                const sha = await getGithubFileSha(githubPath);
+                const ghSynced = await pushToGithub(githubPath, codeContent, `Update ${githubPath} Direct Flow`, sha);
+
+                const statusMsg = 
+                    `✦━━ ❪ ⚙️ ${targetType.toUpperCase()} SAVED ❫ ━━✦\n\n` +
+                    `📁 Location: ${repoSubDir}/${fileName}\n` +
+                    `⚡ Active Load: ${loaded ? 'SUCCESS ✅' : 'SYNTAX ERR ⚠️'}\n` +
+                    `☁️ GitHub Sync: ${ghSynced ? 'SUCCESS ✅' : 'PENDING ⚠️'}\n\n` +
+                    `👑 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗`;
+
+                return api.sendMessage(statusMsg, threadID, messageID);
+            }
         }
 
-        return api.sendMessage(`❌ Safe Reply Method: Pehle sirf code bhejain, phir us par reply karke '.editcmd ${fileNameOnly}' likhein.`, threadID, messageID);
+        // -------------------------------------------------------------
+        // FLOW 3: PROMPT FLOW (.addcmd <name> or .editcmd <name> without code)
+        // -------------------------------------------------------------
+        const promptMsg = 
+            `📝 ❪ 𝐀𝐇𝐌𝐀𝐃 𝐑𝐃𝐗 ❫ ✦ 𝐍𝐄𝐖 ${targetType.toUpperCase()} 𝐒𝐄𝐓𝐔𝐏\n\n` +
+            `👉 File Target: ${repoSubDir}/${fileName}\n\n` +
+            `⚠️ Is message par **REPLY / QUOTE** karke apna JavaScript code paste kar dein! Automatic .js ke sath save ho jayega.`;
+
+        return api.sendMessage(promptMsg, threadID, messageID);
 
     } catch (err) {
-        return api.sendMessage(`❌ Error: ${err.message}`, event.threadID, event.messageID);
+        console.error("[CMDMANAGER CRITICAL ERROR]:", err);
+        return api.sendMessage(`❌ Error aa gaya: ${err.message}`, event.threadID, event.messageID);
     }
 };
-        
+                
