@@ -42,7 +42,7 @@ module.exports.run = async function ({ api, event, Users }) {
         const { createCanvas, loadImage } = canvasModule;
 
         loadingMsg = await api.sendMessage(
-            "🎯 AHMAD RDX | Locking Target & Creating Premium BGMI Pair Card...",
+            "🎯 AHMAD RDX | Locking Target & Creating Premium Pair Card...",
             threadID
         );
 
