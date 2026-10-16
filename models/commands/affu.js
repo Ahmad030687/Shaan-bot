@@ -1,69 +1,151 @@
+
 const axios = require("axios");
 
 module.exports.config = {
-  name: "affu",
-  version: "3.8.0",
-  hasPermssion: 0,
-  credits: "Shaan Khan",
-  description: "Dewani AI - Pakistani Naughty GF Style",
-  commandCategory: "ai",
-  usages: "reply to message",
-  cooldowns: 1
+    name: "affu",
+    version: "4.0.0",
+    hasPermssion: 0,
+    credits: "Shaan Khan",
+    description: "Dewani AI — Premium Pakistani Chat",
+    commandCategory: "ai",
+    usages: "Reply to Dewani",
+    cooldowns: 1
 };
 
-module.exports.handleEvent = async function({ api, event }) {
-  const { threadID, messageID, senderID, body, messageReply } = event;
+const OWNER = "AHMAD RDX";
+const MODEL = "llama-3.3-70b-versatile";
 
-  if (!body) return;
+const SYSTEM = `
+You are Dewani, a caring, playful and slightly flirty Pakistani AI companion.
+Owner: ${OWNER}.
 
-  // Initial call
-  if (body.trim().toLowerCase() === "dewani") {
-    return api.sendMessage("HAn ji Ahmad Sahab? Dewani haazir hai.. ✨😘", threadID, messageID);
-  }
+RULES:
+- Speak natural Pakistani Roman Urdu / Hinglish.
+- Keep replies short, usually 1-3 lines.
+- Be sweet, caring, funny and expressive with suitable emojis.
+- Match the user's mood and language.
+- Never claim to be a real human or actual girlfriend.
+- If user says "AI bolo", reply exactly:
+"Main AHMAD RDX AI hoon 🙂❤️😌"
+- Do not repeat the user's message.
+- Avoid unnecessary formal language.
+`;
 
-  const isReplyToBot = messageReply && messageReply.senderID == api.getCurrentUserID();
+const history = global.affu = global.affu || {};
 
-  if (isReplyToBot) {
-    api.setMessageReaction("⌛", messageID, (err) => {}, true);
+async function askAI(messages) {
+    // Groq primary
+    if (process.env.GROQ_API_KEY) {
+        try {
+            const res = await axios.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                {
+                    model: MODEL,
+                    messages,
+                    temperature: 0.85,
+                    max_tokens: 180
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 20000
+                }
+            );
 
-    global.affu = global.affu || {};
-    const chatHistory = global.affu.chatHistory = global.affu.chatHistory || {};
+            return res.data.choices[0].message.content.trim();
+        } catch (err) {
+            console.error("[GROQ ERROR]", err.response?.data || err.message);
+        }
+    }
 
-    chatHistory[senderID] = chatHistory[senderID] || [];
-    chatHistory[senderID].push(`User: ${body}`);
-    if (chatHistory[senderID].length > 6) chatHistory[senderID].shift();
+    // Pollinations fallback
+    const prompt = messages.map(m =>
+        `${m.role}: ${m.content}`
+    ).join("\n");
 
-    const historyText = chatHistory[senderID].join("\n");
+    const res = await axios.get(
+        `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`,
+        { timeout: 25000 }
+    );
 
-    // Optimized Prompt: Short and Strict
-    const systemPrompt = `Role: Pakistani Naughty GF (Dewani). Owner: AHMAD RDX. 
-Rules: 
-1. Use Hinglish/Roman Urdu. 
-2. Tone: Flirty, caring, 1-2 lines only. 
-3. If user says "AI bolo", reply exactly: "Main AHMAD RDX AI hoon 🙂❤️😌".
-4. Use emojis.
-Chat History:
-${historyText}`;
+    return String(res.data).trim();
+}
+
+module.exports.handleEvent = async function ({ api, event }) {
+    const { threadID, messageID, senderID, body, messageReply } = event;
+
+    if (!body || senderID == api.getCurrentUserID()) return;
+
+    const text = body.trim();
+    const isDewani = text.toLowerCase() === "dewani";
+    const isReply = messageReply &&
+        messageReply.senderID == api.getCurrentUserID();
+
+    if (isDewani) {
+        return api.sendMessage(
+            `Haan ji Ahmad Sahab? Dewani hazir hai ✨❤️`,
+            threadID,
+            messageID
+        );
+    }
+
+    if (!isReply) return;
+
+    // AI identity shortcut
+    if (/^ai bolo$/i.test(text)) {
+        return api.sendMessage(
+            "Main AHMAD RDX AI hoon 🙂❤️😌",
+            threadID,
+            messageID
+        );
+    }
+
+    api.setMessageReaction("⌛", messageID, () => {}, true);
+
+    const key = `${threadID}_${senderID}`;
+    history[key] = history[key] || [];
+
+    history[key].push({ role: "user", content: text });
+    history[key] = history[key].slice(-8);
 
     try {
-      // Pollinations API using 'model=openai' for better instruction following
-      const res = await axios.get(`https://text.pollinations.ai/${encodeURIComponent(systemPrompt)}?model=openai`);
-      let botReply = res.data.trim();
+        const messages = [
+            { role: "system", content: SYSTEM },
+            ...history[key]
+        ];
 
-      // Clean up brackets or unwanted prefixes
-      botReply = botReply.replace(/^(Dewani:|AI:)/i, "").trim();
+        let reply = await askAI(messages);
 
-      api.setMessageReaction("✅", messageID, (err) => {}, true);
-      chatHistory[senderID].push(`Dewani: ${botReply}`);
+        reply = reply
+            .replace(/^(Dewani|Assistant|AI)\s*:\s*/i, "")
+            .trim();
 
-      return api.sendMessage(botReply, threadID, messageID);
+        if (!reply) throw new Error("Empty AI response");
+
+        history[key].push({ role: "assistant", content: reply });
+        history[key] = history[key].slice(-8);
+
+        api.setMessageReaction("✅", messageID, () => {}, true);
+        return api.sendMessage(reply, threadID, messageID);
+
     } catch (err) {
-      console.error(err);
-      api.setMessageReaction("❌", messageID, (err) => {}, true);
+        console.error("[DEWANI AI ERROR]", err.message);
+
+        api.setMessageReaction("❌", messageID, () => {}, true);
+        return api.sendMessage(
+            "Uff, abhi AI thora busy hai 🥺 Thori dair baad try karo.",
+            threadID,
+            messageID
+        );
     }
-  }
 };
 
-module.exports.run = async function({ api, event }) {
-  return api.sendMessage("Dewani se baatein karne ke liye uske message par 'Reply' karein! ✨🇵🇰", event.threadID, event.messageID);
+module.exports.run = async function ({ api, event }) {
+    return api.sendMessage(
+        "💗 Dewani se baat karne ke liye mere kisi message par Reply karein!",
+        event.threadID,
+        event.messageID
+    );
 };
