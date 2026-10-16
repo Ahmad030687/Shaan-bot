@@ -1,221 +1,168 @@
-/**
- * Module: VIP Rankup Card (HD Glassmorphism Canvas)
- * Path: Sardar/commands/rankup.js
- * Credits: SHAAN BABU (Strictly preserved)
- * Upgraded & Branded by: AHMAD RDX
- */
+// ===== PREMIUM RANKUP CARD DESIGN =====
+const width = 1200;
+const height = 500;
+const canvas = createCanvas(width, height);
+const ctx = canvas.getContext("2d");
 
-module.exports.config = {
-  name: "SHAAN-RANKUP-CARD",
-  version: "10.1.0-HD-WHITE",
-  hasPermssion: 1,
-  credits: "SHAAN BABU", // Strict core credit preserved
-  description: "HD VIP Rankup Card generator with ultra-premium AHMAD RDX branding",
-  commandCategory: "LEVEL UP",
-  dependencies: {
-    "canvas": "",
-    "axios": "",
-    "fs-extra": ""
-  },
-  cooldowns: 2
-};
+// Background
+const bg = ctx.createLinearGradient(0, 0, width, height);
+bg.addColorStop(0, "#080812");
+bg.addColorStop(0.48, "#17102D");
+bg.addColorStop(1, "#090914");
 
-module.exports.handleEvent = async function ({ api, event, Currencies, Users }) {
-  const { threadID, senderID } = event;
-  if (!senderID || senderID == api.getCurrentUserID()) return;
+ctx.fillStyle = bg;
+ctx.fillRect(0, 0, width, height);
 
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
-  const { createCanvas, loadImage } = require("canvas");
+// Decorative glow
+function glow(x, y, radius, color) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  g.addColorStop(0, color);
+  g.addColorStop(1, "rgba(0,0,0,0)");
 
-  // ===== EXP CALCULATIONS =====
-  let exp = (await Currencies.getData(senderID)).exp || 0;
-  exp += 1;
-  const curLevel = Math.floor((Math.sqrt(1 + (4 * exp / 3)) + 1) / 2);
-  const nextLevel = Math.floor((Math.sqrt(1 + (4 * (exp + 1) / 3)) + 1) / 2);
+  ctx.fillStyle = g;
+  ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+}
 
-  if (nextLevel <= curLevel || nextLevel === 1) {
-    await Currencies.setData(senderID, { exp });
-    return;
-  }
+glow(1050, 70, 400, "rgba(153, 75, 255, 0.22)");
+glow(100, 480, 300, "rgba(255, 190, 70, 0.12)");
 
-  const name = await Users.getNameUser(senderID);
+// Rounded rectangle helper
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
 
-  try {
-    // ===== AVATAR FETCHING =====
-    let avatar;
-    try {
-      const avatarURL = `https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-      const avatarData = await axios.get(avatarURL, { responseType: "arraybuffer" });
-      avatar = await loadImage(Buffer.from(avatarData.data));
-    } catch (e) {
-      // Fallback blank circular image canvas
-      const fallbackCanvas = createCanvas(512, 512);
-      const fbCtx = fallbackCanvas.getContext("2d");
-      fbCtx.fillStyle = "#22ff88";
-      fbCtx.fillRect(0, 0, 512, 512);
-      avatar = await loadImage(fallbackCanvas.toBuffer());
-    }
+// Main glass card
+roundRect(35, 35, 1130, 430, 32);
+ctx.fillStyle = "rgba(255,255,255,0.045)";
+ctx.fill();
 
-    // ===== CANVAS SETUP (1200 x 500) =====
-    const width = 1200;
-    const height = 500;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext("2d");
+ctx.lineWidth = 2;
+ctx.strokeStyle = "rgba(190,155,255,0.35)";
+ctx.stroke();
 
-    // ===== NEON DARK GRADIENT BACKGROUND =====
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#020b0a");
-    gradient.addColorStop(0.5, "#062e22");
-    gradient.addColorStop(1, "#020b0a");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+// Gold top accent
+const accent = ctx.createLinearGradient(100, 0, 1100, 0);
+accent.addColorStop(0, "#9B63FF");
+accent.addColorStop(0.5, "#FFD98A");
+accent.addColorStop(1, "#9B63FF");
 
-    // ===== DECORATIVE GLOW ORBS =====
-    ctx.globalAlpha = 0.15;
-    ctx.fillStyle = "#ffffff";
-    for (let i = 0; i < 25; i++) {
-      ctx.beginPath();
-      ctx.arc(
-        Math.random() * width,
-        Math.random() * height,
-        Math.random() * 80,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
+roundRect(75, 55, 1050, 5, 3);
+ctx.fillStyle = accent;
+ctx.fill();
 
-    // ===== GLASSMORPHISM FRAME =====
-    ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
-    ctx.strokeStyle = "rgba(34, 255, 136, 0.3)";
-    ctx.lineWidth = 3;
-    ctx.fillRect(40, 40, width - 80, height - 80);
-    ctx.strokeRect(40, 40, width - 80, height - 80);
+// Avatar frame
+const avatarSize = 245;
+const avatarX = 105;
+const avatarY = 125;
+const centerX = avatarX + avatarSize / 2;
+const centerY = avatarY + avatarSize / 2;
 
-    // ===== AVATAR RENDERING =====
-    const avatarSize = 260;
-    const avatarX = 100;
-    const avatarY = 120;
+// Avatar glow
+ctx.save();
+ctx.shadowColor = "#A875FF";
+ctx.shadowBlur = 35;
+ctx.beginPath();
+ctx.arc(centerX, centerY, avatarSize / 2 + 8, 0, Math.PI * 2);
+ctx.fillStyle = "#A875FF";
+ctx.fill();
+ctx.restore();
 
-    // Outer Neon Glow
-    ctx.shadowColor = "#22ff88";
-    ctx.shadowBlur = 45;
-    ctx.beginPath();
-    ctx.arc(
-      avatarX + avatarSize / 2,
-      avatarY + avatarSize / 2,
-      avatarSize / 2,
-      0,
-      Math.PI * 2
-    );
-    ctx.fillStyle = "#22ff88";
-    ctx.fill();
-    ctx.shadowBlur = 0;
+// Avatar image
+ctx.save();
+ctx.beginPath();
+ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2);
+ctx.clip();
+ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+ctx.restore();
 
-    // Clip Image
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(
-      avatarX + avatarSize / 2,
-      avatarY + avatarSize / 2,
-      avatarSize / 2,
-      0,
-      Math.PI * 2
-    );
-    ctx.clip();
-    ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-    ctx.restore();
+// Avatar border
+ctx.beginPath();
+ctx.arc(centerX, centerY, avatarSize / 2 + 4, 0, Math.PI * 2);
+ctx.lineWidth = 5;
+ctx.strokeStyle = "#FFD98A";
+ctx.stroke();
 
-    // Border Frame
-    ctx.beginPath();
-    ctx.arc(
-      avatarX + avatarSize / 2,
-      avatarY + avatarSize / 2,
-      avatarSize / 2,
-      0,
-      Math.PI * 2
-    );
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = "#22ff88";
-    ctx.stroke();
+// Small VIP label
+roundRect(135, 390, 185, 42, 21);
+ctx.fillStyle = "#FFD98A";
+ctx.fill();
 
-    // ===== CARD TEXT =====
-    ctx.font = "bold 68px Sans";
-    ctx.fillStyle = "#ffffff";
-    ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
-    ctx.shadowBlur = 15;
-    ctx.fillText("LEVEL UP!", 420, 150);
-    ctx.shadowBlur = 0;
+ctx.font = "bold 19px Sans";
+ctx.textAlign = "center";
+ctx.fillStyle = "#17102D";
+ctx.fillText("✦ VIP ACHIEVEMENT ✦", 227, 417);
 
-    ctx.font = "bold 46px Sans";
-    ctx.fillStyle = "#22ff88";
-    ctx.fillText(name, 420, 225);
+// Text area
+ctx.textAlign = "left";
 
-    ctx.font = "36px Sans";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(`You reached Level ${nextLevel}! 🔥`, 420, 290);
+// LEVEL UP heading
+ctx.font = "bold 62px Sans";
+ctx.fillStyle = "#FFFFFF";
+ctx.shadowColor = "rgba(180,120,255,0.65)";
+ctx.shadowBlur = 18;
+ctx.fillText("LEVEL UP!", 420, 135);
+ctx.shadowBlur = 0;
 
-    ctx.font = "bold 28px Sans";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.fillText("POWERED BY: AHMAD RDX", 420, 360);
+// Username
+ctx.font = "bold 38px Sans";
+ctx.fillStyle = "#D9B8FF";
 
-    // ===== FILE SAVING =====
-    const imgPath = __dirname + `/cache/rankup_${senderID}_${Date.now()}.png`;
-    fs.writeFileSync(imgPath, canvas.toBuffer());
+let displayName = String(name || "Member");
+if (displayName.length > 22) {
+  displayName = displayName.slice(0, 20) + "...";
+}
+ctx.fillText(displayName, 425, 195);
 
-    // ===== MESSAGE BROADCAST =====
-    const msgBody =
-      "╔════════════════════════╗\n" +
-      "║   🎉 LEVEL UP ACHIEVED 🎉 ║\n" +
-      "╚════════════════════════╝\n\n" +
-      `👤 Member: ${name}\n` +
-      `⚡ New Rank: Level ${nextLevel}\n` +
-      "💬 Mubarak ho! Aapne naya level haasil kar liya hai.\n\n" +
-      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-      "👑 POWERED BY: AHMAD RDX\n" +
-      "📱 WhatsApp: +92306*******\n" +
-      "✈️ Telegram: ahmadalisafdar3\n" +
-      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+// Congratulations
+ctx.font = "26px Sans";
+ctx.fillStyle = "rgba(255,255,255,0.78)";
+ctx.fillText("Congratulations! Your hard work paid off.", 425, 245);
 
-    api.sendMessage(
-      {
-        body: msgBody,
-        attachment: fs.createReadStream(imgPath)
-      },
-      threadID,
-      () => {
-        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-      }
-    );
-  } catch (err) {
-    console.error("[RANKUP ERROR]:", err);
-  }
+// Level transition box
+roundRect(420, 275, 650, 95, 18);
+ctx.fillStyle = "rgba(255,255,255,0.07)";
+ctx.fill();
+ctx.strokeStyle = "rgba(255,217,138,0.35)";
+ctx.lineWidth = 1.5;
+ctx.stroke();
 
-  await Currencies.setData(senderID, { exp });
-};
+// Previous level
+ctx.textAlign = "center";
+ctx.font = "bold 32px Sans";
+ctx.fillStyle = "#B8B4C9";
+ctx.fillText(`LEVEL ${curLevel}`, 550, 330);
 
-// ===== ON / OFF TOGGLE =====
-module.exports.run = async function ({ api, event, Threads }) {
-  const { threadID, messageID } = event;
-  let data = (await Threads.getData(threadID)).data || {};
+// Arrow
+ctx.font = "bold 36px Sans";
+ctx.fillStyle = "#FFD98A";
+ctx.fillText("➜", 745, 330);
 
-  data.rankup = !data.rankup;
-  await Threads.setData(threadID, { data });
-  global.data.threadData.set(threadID, data);
+// New level
+ctx.font = "bold 42px Sans";
+ctx.fillStyle = "#FFD98A";
+ctx.fillText(`LEVEL ${nextLevel}`, 935, 332);
 
-  const statusMsg = data.rankup ? 
-    "╔════════════════════════╗\n" +
-    "║  👑 VIP RANKUP CARD: ON ║\n" +
-    "╚════════════════════════╝\n\n" +
-    "⚡ Rankup level notifications activated for this group!\n\n" +
-    "👑 POWERED BY: AHMAD RDX" :
-    "╔════════════════════════╗\n" +
-    "║  ❌ VIP RANKUP CARD: OFF║\n" +
-    "╚════════════════════════╝\n\n" +
-    "🚫 Rankup level notifications deactivated for this group!\n\n" +
-    "👑 POWERED BY: AHMAD RDX";
+// Bottom branding
+ctx.textAlign = "left";
+ctx.font = "bold 24px Sans";
+ctx.fillStyle = "#FFFFFF";
+ctx.fillText("AHMAD RDX", 425, 420);
 
-  return api.sendMessage(statusMsg, threadID, messageID);
-};
+ctx.font = "17px Sans";
+ctx.fillStyle = "rgba(255,255,255,0.5)";
+ctx.fillText("PREMIUM RANKUP EXPERIENCE", 620, 420);
+
+// Bottom right decorative star
+ctx.font = "bold 38px Sans";
+ctx.fillStyle = "#FFD98A";
+ctx.fillText("✦", 1070, 420);
