@@ -1,22 +1,36 @@
 module.exports.config = {
- name: "antiout",
- eventType: ["log:unsubscribe"],
- version: "0.0.1",
- credits: "ARIF BABU",
- description: "Listen events"
+    name: "antiout",
+    eventType: ["log:unsubscribe"],
+    version: "1.0.0",
+    credits: "ARIF BABU",
+    description: "Premium AntiOut protection"
 };
 
-module.exports.run = async({ event, api, Threads, Users }) => {
- let data = (await Threads.getData(event.threadID)).data || {};
- if (data.antiout == false) return;
- if (event.logMessageData.leftParticipantFbId == api.getCurrentUserID()) return;
- const name = global.data.userName.get(event.logMessageData.leftParticipantFbId) || await Users.getNameUser(event.logMessageData.leftParticipantFbId);
- const type = (event.author == event.logMessageData.leftParticipantFbId) ? "self-separation" : "Koi Ase Member ko Lath Marta Hai?";
- if (type == "self-separation") {
-  api.addUserToGroup(event.logMessageData.leftParticipantFbId, event.threadID, (error, info) => {
-   if (error) {
-    api.sendMessage(`Isse Dubara Add Nhi Kar Paya 🥺 ${name} Group Mai :( `, event.threadID)
-   } else api.sendMessage(`Bhag Ke Jaane Ka Nhi, ${name} Baby, Dekho Phir Se Add Kardiya Aapko`, event.threadID);
-  })
- }
-}
+module.exports.run = async ({ event, api, Threads, Users }) => {
+    const { threadID, author, logMessageData } = event;
+    const leftID = logMessageData.leftParticipantFbId;
+
+    if (leftID == api.getCurrentUserID()) return;
+
+    const data = (await Threads.getData(threadID)).data || {};
+    if (data.antiout === false) return;
+
+    // Only re-add members who leave themselves
+    if (author != leftID) return;
+
+    const name = global.data.userName.get(leftID) ||
+        await Users.getNameUser(leftID);
+
+    api.addUserToGroup(leftID, threadID, (err) => {
+        const msg = err
+            ? `╭━━ ✦ 𝗔𝗡𝗧𝗜𝗢𝗨𝗧 ✦ ━━╮
+│ ❌ ${name} ko wapas add nahi kar saka.
+╰━━━━━━━━━━━━━━━━━━╯`
+            : `╭━━ ✦ 𝗔𝗡𝗧𝗜𝗢𝗨𝗧 ✦ ━━╮
+│ 🔒 ${name} wapas group mein add!
+│ 👑 AHMAD RDX BOT
+╰━━━━━━━━━━━━━━━━━━╯`;
+
+        return api.sendMessage(msg, threadID);
+    });
+};
