@@ -1,140 +1,99 @@
 /**
- * Module: Join Notification & Bot Connect Module
- * Path: Sardar/commands/joinNoti.js
- * Credits: CatalizCS (Strictly preserved)
- * Upgraded & Branded by: AHMAD RDX
+ * Join Notification Module
+ * Credits: CatalizCS | Premium Upgrade: AHMAD RDX
  */
 
 module.exports.config = {
     name: "joinNoti",
     eventType: ["log:subscribe"],
     version: "2.0.0",
-    credits: "CatalizCS", // Strict core credit preserved
-    description: "Ultra-premium professional join notification & bot connect module by AHMAD RDX",
+    credits: "CatalizCS",
     dependencies: {
         "fs-extra": "",
-        "path": "",
-        "pidusage": ""
+        "path": ""
     }
 };
 
 module.exports.onLoad = function () {
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { join } = global.nodemodule["path"];
-
-    const path = join(__dirname, "cache", "joinGif");
-    if (!existsSync(path)) mkdirSync(path, { recursive: true });        
-
-    const path2 = join(__dirname, "cache", "joinGif", "randomgif");
-    if (!existsSync(path2)) mkdirSync(path2, { recursive: true });
-
-    return;
+    const { ensureDirSync } = global.nodemodule["fs-extra"];
+    ensureDirSync(__dirname + "/cache/joinGif/randomgif");
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.run = async function ({ api, event }) {
+    const { threadID, logMessageData } = event;
     const { join } = global.nodemodule["path"];
-    const { threadID } = event;
+    const { createReadStream, existsSync, readdirSync } =
+        global.nodemodule["fs-extra"];
 
-    // -------------------------------------------------------------
-    // CASE 1: When Bot Joins a New Group
-    // -------------------------------------------------------------
-    if (event.logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
-        api.changeNickname(`{ ${global.config.PREFIX} } × ${(!global.config.BOTNAME) ? "AHMAD-BOT" : global.config.BOTNAME}`, threadID, api.getCurrentUserID());
-        const fs = require("fs");
-        
-        const welcomeText = 
-            "Assalamu Alaikum Everyone 🥀🥀\n\n" +
-            "⚡ ━━━━━━━━━━━━━━━━━━━━━━ ⚡\n" +
-            "🌺 AHMAD RDX BOT CONNECTED 🌺\n" +
-            "⚡ ━━━━━━━━━━━━━━━━━━━━━━ ⚡\n\n" +
-            "👑 Bot Developed By: AHMAD RDX\n" +
-            "🛡️ Status: Successfully Active & Approved!\n\n" +
-            "📌 USE COMMANDS BELOW:\n" +
-            `Type ${global.config.PREFIX}help to see all commands.\n\n` +
-            "💡 Quick Examples:\n" +
-            `• ${global.config.PREFIX}video7 (Video Songs)\n` +
-            `• ${global.config.PREFIX}music (Audio Songs)\n` +
-            `• ${global.config.PREFIX}help2 (Command List)\n` +
-            `• ${global.config.PREFIX}info (Bot Information)\n\n` +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "🌐 DEVELOPER & CONTACT INFO 🌐\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👤 Owner: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "🔗 Facebook: https://www.facebook.com/profile.php?id=100002944872037\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+    const members = logMessageData.addedParticipants || [];
+    const botID = api.getCurrentUserID();
+    const prefix = global.config.PREFIX;
+    const ownerID = "100002944872037";
 
-        const videoPath = __dirname + "/cache/lv_7413647234832682256_20250105005634.mp4";
-        const messagePayload = {
-            body: welcomeText,
-            ...(fs.existsSync(videoPath) ? { attachment: fs.createReadStream(videoPath) } : {})
-        };
+    // Bot Group Connect
+    if (members.some(m => m.userFbId == botID)) {
+        api.changeNickname(
+            `${prefix} × ${global.config.BOTNAME || "AHMAD-BOT"}`,
+            threadID,
+            botID
+        );
 
-        return api.sendMessage(messagePayload, threadID);
-    } 
-    // -------------------------------------------------------------
-    // CASE 2: When New Members Join the Group
-    // -------------------------------------------------------------
-    else {
-        try {
-            const { createReadStream, existsSync, mkdirSync, readdirSync } = global.nodemodule["fs-extra"];
-            let { threadName, participantIDs } = await api.getThreadInfo(threadID);
+        return api.sendMessage(
+            `╭━━━ ✦ 𝗔𝗛𝗠𝗔𝗗 𝗕𝗢𝗧 ✦ ━━━╮
+│  ✨ Bot Successfully Connected!
+│  👑 Owner: AHMAD RDX
+│  ⚡ Type ${prefix}help for commands
+╰━━━━━━━━━━━━━━━━━━━━━━╯`,
+            threadID
+        );
+    }
 
-            const threadData = global.data.threadData.get(parseInt(threadID)) || {};
-            const path = join(__dirname, "cache", "joinGif");
-            const pathGif = join(path, `${threadID}.gif`);
+    // New Member Welcome
+    try {
+        const info = await api.getThreadInfo(threadID);
+        const names = members.map(m => m.fullName);
+        const mentions = members.map(m => ({
+            tag: m.fullName,
+            id: m.userFbId
+        }));
 
-            var mentions = [], nameArray = [], memLength = [], i = 0;
+        const total = info.participantIDs.length;
+        const data = global.data.threadData.get(parseInt(threadID)) || {};
 
-            for (id in event.logMessageData.addedParticipants) {
-                const userName = event.logMessageData.addedParticipants[id].fullName;
-                nameArray.push(userName);
-                mentions.push({ tag: userName, id });
-                memLength.push(participantIDs.length - i++);
-            }
-            memLength.sort((a, b) => a - b);
+        let msg = data.customJoin ||
+`╭━━━ ✦ 𝗪𝗘𝗟𝗖𝗢𝗠𝗘 ✦ ━━━╮
+│  💖 Welcome {name}
+│  🏠 {threadName}
+│  👥 Member #{soThanhVien}
+│
+│  ✨ Enjoy your stay!
+│  👑 AHMAD RDX BOT
+╰━━━━━━━━━━━━━━━━━━━━━━╯`;
 
-            // Premium default welcome message layout
-            let msg = typeof threadData.customJoin !== "undefined" ? threadData.customJoin : 
-                "╔════════════════════════╗\n" +
-                "║    ✨ 𝖂𝒠𝐋𝐂𝐎𝐌𝐄 𝕿𝓞 ✨    ║\n" +
-                "╚════════════════════════╝\n\n" +
-                "💖 HELLO DEAR MEMBER(S) 💖\n\n" +
-                "┌────────────────────────┐\n" +
-                "│ 👤 Member: {name}\n" +
-                "│ 👥 Total Member No: {soThanhVien}\n" +
-                "│ 🏠 Group: {threadName}\n" +
-                "└────────────────────────┘\n\n" +
-                "🥀 𝐇𝐀𝐏𝐏𝐘 𝐄𝐍𝐉𝐎𝐘 & 𝐌𝐀𝐉𝐄 𝐊𝐀𝐑𝐎 🥀\n\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "👑 POWERED BY: AHMAD RDX 👑\n" +
-                "📱 Contact: +92306*******\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        msg = msg
+            .replace(/\{name\}/g, names.join(", "))
+            .replace(/\{threadName\}/g, info.threadName)
+            .replace(/\{soThanhVien\}/g, total)
+            .replace(/\{type\}/g, members.length > 1 ? "Friends" : "Friend");
 
-            msg = msg
-                .replace(/\{name}/g, nameArray.join(', '))
-                .replace(/\{type}/g, (memLength.length > 1) ? 'Friends' : 'Friend')
-                .replace(/\{soThanhVien}/g, memLength.join(', '))
-                .replace(/\{threadName}/g, threadName);
+        const cache = join(__dirname, "cache", "joinGif");
+        const gif = join(cache, `${threadID}.gif`);
+        const randomDir = join(cache, "randomgif");
+        const gifs = existsSync(randomDir) ? readdirSync(randomDir) : [];
 
-            if (existsSync(path)) mkdirSync(path, { recursive: true });
+        const media = existsSync(gif)
+            ? gif
+            : gifs.length
+                ? join(randomDir, gifs[Math.floor(Math.random() * gifs.length)])
+                : null;
 
-            const randomPath = readdirSync(join(__dirname, "cache", "joinGif", "randomgif"));
-            let formPush = {};
+        return api.sendMessage({
+            body: msg,
+            mentions,
+            ...(media ? { attachment: createReadStream(media) } : {})
+        }, threadID);
 
-            if (existsSync(pathGif)) {
-                formPush = { body: msg, attachment: createReadStream(pathGif), mentions };
-            } else if (randomPath.length != 0) {
-                const pathRandom = join(__dirname, "cache", "joinGif", "randomgif", `${randomPath[Math.floor(Math.random() * randomPath.length)]}`);
-                formPush = { body: msg, attachment: createReadStream(pathRandom), mentions };
-            } else {
-                formPush = { body: msg, mentions };
-            }
-
-            return api.sendMessage(formPush, threadID);
-        } catch (e) { 
-            return console.log("[JOIN NOTI ERROR]:", e); 
-        }
+    } catch (err) {
+        console.log("[JOIN NOTI]", err);
     }
 };
