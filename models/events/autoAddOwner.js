@@ -1,53 +1,66 @@
 /**
- * Event: Auto Add Owner on Group Join
+ * Event: Auto Add Owner
  * Path: models/events/autoAddOwner.js
  * Credits: AHMAD RDX
  */
 
 module.exports.config = {
   name: "autoAddOwner",
-  version: "1.0.0",
+  version: "1.1.0",
+  eventType: ["log:subscribe"],
   credits: "AHMAD RDX",
-  description: "Bot naye group mein add hone par owner ko automatic add kar deta hai"
+  description: "Bot group mein add ho to owner ko add karne ki koshish"
 };
 
-module.exports.handleEvent = async function({ api, event }) {
-  const { threadID, logMessageType, logMessageData } = event;
+module.exports.run = async function ({ api, event }) {
+  const { threadID, logMessageData } = event;
 
-  // Check check karein ke kya event group mein kisi naye member/bot ke add hone ka hai
-  if (logMessageType === "log:subscribe") {
-    const addedParticipants = logMessageData.addedParticipants || [];
-    const botID = api.getCurrentUserID();
+  const OWNER_ID = "100002944872037";
+  const botID = String(api.getCurrentUserID());
 
-    // Verify karein ke kya Bot khud is group mein add hua hai
-    const isBotAdded = addedParticipants.some(user => user.userFbId === botID);
+  const addedParticipants =
+    logMessageData?.addedParticipants || [];
 
-    if (isBotAdded) {
-      // ⚠️ APNI FACEBOOK ID YAHAN LIKHEIN (Main Admin / Owner ID)
-      const OWNER_ID = "100002944872037"; // Replace with your actual FB UID
+  // Check karein bot khud group mein add hua hai
+  const isBotAdded = addedParticipants.some(
+    user => String(user.userFbId) === botID
+  );
 
-      try {
-        // Owner ko group mein add karne ki try karein
-        await api.addUserToGroup(OWNER_ID, threadID);
+  if (!isBotAdded) return;
 
-        // Success Notification Group Mein Bhejain
+  // Group info hasil karein
+  api.getThreadInfo(threadID, (infoErr, info) => {
+    const groupName = info?.threadName || "Unknown Group";
+
+    // Owner pehle se group mein hai to dobara add na karein
+    const alreadyAdded = info?.participantIDs?.some(
+      id => String(id) === OWNER_ID
+    );
+
+    if (alreadyAdded) return;
+
+    // Owner ko group mein add karne ki koshish
+    api.addUserToGroup(OWNER_ID, threadID, (err) => {
+      if (!err) {
         return api.sendMessage(
-          `✦━━━ ❪ 👑 AHMAD RDX BOT ❫ ━━━✦\n\n` +
-          `✅ Mujhe is group mein add karne ka shukriya!\n` +
-          `👑 Mere Owner/Admin ko bhi group mein add kar diya gaya hai.`,
-          threadID
-        );
-      } catch (err) {
-        console.error("[AUTO ADD OWNER ERROR]:", err);
-        
-        // Agar privacy settings ki wajah se direct add na ho saky toh notification
-        return api.sendMessage(
-          `✦━━━ ❪ ⚠️ NOTICE ❫ ━━━✦\n\n` +
-          `Aapne mujhe group mein add toh kar diya, lekin Owner Facebook privacy ki wajah se auto-add nahi ho sake.\n\n` +
-          `👑 Owner ID: https://facebook.com/${OWNER_ID}`,
+          "👑 AHMAD RDX OWNER ADDED!\n\n" +
+          `📌 Group: ${groupName}\n` +
+          `🆔 Group ID: ${threadID}\n\n` +
+          "Owner ko group mein add kar diya gaya hai.",
           threadID
         );
       }
-    }
-  }
+
+      // Add fail ho to owner ko DM notification
+      api.sendMessage(
+        "⚠️ OWNER ADD REQUEST FAILED\n\n" +
+        `📌 Group: ${groupName}\n` +
+        `🆔 Group ID: ${threadID}\n\n` +
+        "Bot owner ko automatically add nahi kar saka.\n" +
+        "Owner ko manually group mein add karein ya group invite bhejein.\n\n" +
+        `👑 Owner UID: ${OWNER_ID}`,
+        OWNER_ID
+      );
+    });
+  });
 };
