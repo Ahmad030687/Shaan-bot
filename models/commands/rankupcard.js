@@ -1,168 +1,401 @@
-// ===== PREMIUM RANKUP CARD DESIGN =====
-const width = 1200;
-const height = 500;
-const canvas = createCanvas(width, height);
-const ctx = canvas.getContext("2d");
 
-// Background
-const bg = ctx.createLinearGradient(0, 0, width, height);
-bg.addColorStop(0, "#080812");
-bg.addColorStop(0.48, "#17102D");
-bg.addColorStop(1, "#090914");
+module.exports.config = {
+  name: "rankup",
+  version: "12.0.0-AHMAD-RDX",
+  hasPermssion: 1,
+  credits: "AHMAD RDX",
+  description: "Premium VIP Rankup Card",
+  commandCategory: "LEVEL UP",
+  dependencies: {
+    canvas: "",
+    axios: "",
+    "fs-extra": ""
+  },
+  cooldowns: 2
+};
 
-ctx.fillStyle = bg;
-ctx.fillRect(0, 0, width, height);
+module.exports.run = async function ({ api, event, Threads }) {
+  const { threadID, messageID } = event;
 
-// Decorative glow
-function glow(x, y, radius, color) {
-  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
-  g.addColorStop(0, color);
-  g.addColorStop(1, "rgba(0,0,0,0)");
+  let threadData = (await Threads.getData(threadID)).data || {};
+  threadData.rankup = !threadData.rankup;
 
-  ctx.fillStyle = g;
-  ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-}
+  await Threads.setData(threadID, { data: threadData });
+  global.data.threadData.set(threadID, threadData);
 
-glow(1050, 70, 400, "rgba(153, 75, 255, 0.22)");
-glow(100, 480, 300, "rgba(255, 190, 70, 0.12)");
+  return api.sendMessage(
+    threadData.rankup
+      ? "👑 AHMAD RDX PREMIUM RANKUP CARD ON"
+      : "❌ RANKUP CARD OFF",
+    threadID,
+    messageID
+  );
+};
 
-// Rounded rectangle helper
-function roundRect(x, y, w, h, r) {
+module.exports.handleEvent = async function ({
+  api,
+  event,
+  Currencies,
+  Users,
+  Threads
+}) {
+  const { threadID, senderID } = event;
+
+  if (!senderID || !threadID) return;
+
+  // ===== GROUP SETTING CHECK =====
+  const threadData = (await Threads.getData(threadID)).data || {};
+
+  if (threadData.rankup !== true) return;
+
+  const fs = global.nodemodule["fs-extra"];
+  const axios = global.nodemodule["axios"];
+  const { createCanvas, loadImage } = require("canvas");
+
+  // ===== XP SYSTEM =====
+  const currencyData = await Currencies.getData(senderID);
+  let exp = Number(currencyData.exp) || 0;
+  exp += 1;
+
+  const getLevel = xp =>
+    Math.floor((Math.sqrt(1 + (4 * xp / 3)) + 1) / 2);
+
+  const curLevel = getLevel(exp - 1);
+  const nextLevel = getLevel(exp);
+
+  await Currencies.setData(senderID, { exp });
+
+  // Rankup sirf level change par
+  if (nextLevel <= curLevel || nextLevel === 1) return;
+
+  // ===== USER INFO =====
+  const name = await Users.getNameUser(senderID);
+
+  let avatarURL;
+
+  try {
+    const info = await api.getUserInfo(senderID);
+    avatarURL = info[senderID]?.profileUrl;
+  } catch (e) {
+    console.log("Rankup avatar error:", e);
+  }
+
+  if (!avatarURL) return;
+
+  // ===== AVATAR DOWNLOAD =====
+  let avatar;
+
+  try {
+    const response = await axios.get(avatarURL, {
+      responseType: "arraybuffer",
+      timeout: 15000
+    });
+
+    avatar = await loadImage(Buffer.from(response.data));
+  } catch (e) {
+    console.log("Rankup image download error:", e);
+    return;
+  }
+
+  // ===== CANVAS =====
+  const width = 1200;
+  const height = 500;
+
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
+
+  // ===== BACKGROUND =====
+  const bg = ctx.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, "#03030B");
+  bg.addColorStop(0.5, "#17082B");
+  bg.addColorStop(1, "#050510");
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  // ===== GLOW EFFECT =====
+  function glow(x, y, radius, color) {
+    const g = ctx.createRadialGradient(
+      x, y, 0,
+      x, y, radius
+    );
+
+    g.addColorStop(0, color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.fillStyle = g;
+    ctx.fillRect(
+      x - radius,
+      y - radius,
+      radius * 2,
+      radius * 2
+    );
+  }
+
+  glow(300, 250, 360, "rgba(130,50,255,0.24)");
+  glow(1000, 80, 330, "rgba(255,190,60,0.12)");
+
+  // ===== ROUNDED RECTANGLE =====
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(
+      x + w, y + h,
+      x + w - r, y + h
+    );
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(
+      x, y + h,
+      x, y + h - r
+    );
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  // ===== MAIN CARD =====
+  roundRect(25, 25, 1150, 450, 30);
+
+  ctx.fillStyle = "rgba(255,255,255,0.035)";
+  ctx.fill();
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(190,140,255,0.65)";
+  ctx.stroke();
+
+  // ===== TOP GOLD LINE =====
+  const gold = ctx.createLinearGradient(50, 0, 1150, 0);
+  gold.addColorStop(0, "#8A4DFF");
+  gold.addColorStop(0.5, "#FFD98A");
+  gold.addColorStop(1, "#8A4DFF");
+
+  roundRect(60, 43, 1080, 5, 3);
+  ctx.fillStyle = gold;
+  ctx.fill();
+
+  // ===== PROFILE AVATAR =====
+  const avatarSize = 245;
+  const avatarX = 95;
+  const avatarY = 110;
+
+  const centerX = avatarX + avatarSize / 2;
+  const centerY = avatarY + avatarSize / 2;
+
+  // Avatar glow
+  ctx.save();
+  ctx.shadowColor = "#A855FF";
+  ctx.shadowBlur = 35;
+
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
+  ctx.arc(
+    centerX,
+    centerY,
+    avatarSize / 2 + 5,
+    0,
+    Math.PI * 2
+  );
 
-// Main glass card
-roundRect(35, 35, 1130, 430, 32);
-ctx.fillStyle = "rgba(255,255,255,0.045)";
-ctx.fill();
+  ctx.fillStyle = "#A855FF";
+  ctx.fill();
+  ctx.restore();
 
-ctx.lineWidth = 2;
-ctx.strokeStyle = "rgba(190,155,255,0.35)";
-ctx.stroke();
+  // Avatar image
+  ctx.save();
 
-// Gold top accent
-const accent = ctx.createLinearGradient(100, 0, 1100, 0);
-accent.addColorStop(0, "#9B63FF");
-accent.addColorStop(0.5, "#FFD98A");
-accent.addColorStop(1, "#9B63FF");
+  ctx.beginPath();
+  ctx.arc(
+    centerX,
+    centerY,
+    avatarSize / 2,
+    0,
+    Math.PI * 2
+  );
 
-roundRect(75, 55, 1050, 5, 3);
-ctx.fillStyle = accent;
-ctx.fill();
+  ctx.clip();
+  ctx.drawImage(
+    avatar,
+    avatarX,
+    avatarY,
+    avatarSize,
+    avatarSize
+  );
 
-// Avatar frame
-const avatarSize = 245;
-const avatarX = 105;
-const avatarY = 125;
-const centerX = avatarX + avatarSize / 2;
-const centerY = avatarY + avatarSize / 2;
+  ctx.restore();
 
-// Avatar glow
-ctx.save();
-ctx.shadowColor = "#A875FF";
-ctx.shadowBlur = 35;
-ctx.beginPath();
-ctx.arc(centerX, centerY, avatarSize / 2 + 8, 0, Math.PI * 2);
-ctx.fillStyle = "#A875FF";
-ctx.fill();
-ctx.restore();
+  // Gold avatar border
+  ctx.beginPath();
+  ctx.arc(
+    centerX,
+    centerY,
+    avatarSize / 2 + 4,
+    0,
+    Math.PI * 2
+  );
 
-// Avatar image
-ctx.save();
-ctx.beginPath();
-ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2);
-ctx.clip();
-ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-ctx.restore();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#FFD98A";
+  ctx.stroke();
 
-// Avatar border
-ctx.beginPath();
-ctx.arc(centerX, centerY, avatarSize / 2 + 4, 0, Math.PI * 2);
-ctx.lineWidth = 5;
-ctx.strokeStyle = "#FFD98A";
-ctx.stroke();
+  // ===== VIP BADGE =====
+  roundRect(135, 385, 165, 48, 22);
+  ctx.fillStyle = "#FFD98A";
+  ctx.fill();
 
-// Small VIP label
-roundRect(135, 390, 185, 42, 21);
-ctx.fillStyle = "#FFD98A";
-ctx.fill();
+  ctx.font = "bold 24px Sans";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#17082B";
+  ctx.fillText("✦ VIP ✦", 217, 416);
 
-ctx.font = "bold 19px Sans";
-ctx.textAlign = "center";
-ctx.fillStyle = "#17102D";
-ctx.fillText("✦ VIP ACHIEVEMENT ✦", 227, 417);
+  // ===== LEVEL UP TITLE =====
+  ctx.textAlign = "left";
 
-// Text area
-ctx.textAlign = "left";
+  ctx.font = "bold 66px Sans";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.shadowColor = "rgba(160,100,255,0.8)";
+  ctx.shadowBlur = 20;
 
-// LEVEL UP heading
-ctx.font = "bold 62px Sans";
-ctx.fillStyle = "#FFFFFF";
-ctx.shadowColor = "rgba(180,120,255,0.65)";
-ctx.shadowBlur = 18;
-ctx.fillText("LEVEL UP!", 420, 135);
-ctx.shadowBlur = 0;
+  ctx.fillText("LEVEL UP!", 410, 125);
+  ctx.shadowBlur = 0;
 
-// Username
-ctx.font = "bold 38px Sans";
-ctx.fillStyle = "#D9B8FF";
+  // ===== USER NAME =====
+  let displayName = String(name || "Member");
 
-let displayName = String(name || "Member");
-if (displayName.length > 22) {
-  displayName = displayName.slice(0, 20) + "...";
-}
-ctx.fillText(displayName, 425, 195);
+  if (displayName.length > 22) {
+    displayName = displayName.slice(0, 20) + "...";
+  }
 
-// Congratulations
-ctx.font = "26px Sans";
-ctx.fillStyle = "rgba(255,255,255,0.78)";
-ctx.fillText("Congratulations! Your hard work paid off.", 425, 245);
+  ctx.font = "bold 40px Sans";
+  ctx.fillStyle = "#FFD98A";
+  ctx.fillText(displayName, 415, 190);
 
-// Level transition box
-roundRect(420, 275, 650, 95, 18);
-ctx.fillStyle = "rgba(255,255,255,0.07)";
-ctx.fill();
-ctx.strokeStyle = "rgba(255,217,138,0.35)";
-ctx.lineWidth = 1.5;
-ctx.stroke();
+  // ===== CONGRATULATIONS =====
+  ctx.font = "24px Sans";
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
 
-// Previous level
-ctx.textAlign = "center";
-ctx.font = "bold 32px Sans";
-ctx.fillStyle = "#B8B4C9";
-ctx.fillText(`LEVEL ${curLevel}`, 550, 330);
+  ctx.fillText(
+    "Congratulations! Your hard work paid off.",
+    415,
+    235
+  );
 
-// Arrow
-ctx.font = "bold 36px Sans";
-ctx.fillStyle = "#FFD98A";
-ctx.fillText("➜", 745, 330);
+  // ===== LEVEL TRANSITION BOX =====
+  roundRect(405, 265, 660, 100, 20);
 
-// New level
-ctx.font = "bold 42px Sans";
-ctx.fillStyle = "#FFD98A";
-ctx.fillText(`LEVEL ${nextLevel}`, 935, 332);
+  ctx.fillStyle = "rgba(255,255,255,0.055)";
+  ctx.fill();
 
-// Bottom branding
-ctx.textAlign = "left";
-ctx.font = "bold 24px Sans";
-ctx.fillStyle = "#FFFFFF";
-ctx.fillText("AHMAD RDX", 425, 420);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(255,217,138,0.55)";
+  ctx.stroke();
 
-ctx.font = "17px Sans";
-ctx.fillStyle = "rgba(255,255,255,0.5)";
-ctx.fillText("PREMIUM RANKUP EXPERIENCE", 620, 420);
+  // Old level
+  ctx.textAlign = "center";
+  ctx.font = "bold 30px Sans";
+  ctx.fillStyle = "#B8B4C9";
 
-// Bottom right decorative star
-ctx.font = "bold 38px Sans";
-ctx.fillStyle = "#FFD98A";
-ctx.fillText("✦", 1070, 420);
+  ctx.fillText(`LEVEL ${curLevel}`, 545, 325);
+
+  // Arrow
+  ctx.font = "bold 38px Sans";
+  ctx.fillStyle = "#FFD98A";
+
+  ctx.fillText("➜", 735, 325);
+
+  // New level
+  ctx.font = "bold 42px Sans";
+  ctx.fillStyle = "#FFD98A";
+
+  ctx.fillText(`LEVEL ${nextLevel}`, 925, 327);
+
+  // ===== XP PROGRESS =====
+  const currentLevelXP = 3 * curLevel * (curLevel - 1);
+  const nextLevelXP = 3 * nextLevel * (nextLevel - 1);
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      (exp - currentLevelXP) /
+      Math.max(1, nextLevelXP - currentLevelXP)
+    )
+  );
+
+  ctx.textAlign = "left";
+  ctx.font = "bold 20px Sans";
+  ctx.fillStyle = "#FFFFFF";
+
+  ctx.fillText("XP PROGRESS", 410, 400);
+
+  // Progress bar background
+  roundRect(410, 415, 650, 18, 9);
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fill();
+
+  // Progress bar fill
+  const barWidth = Math.max(1, 650 * progress);
+
+  roundRect(410, 415, barWidth, 18, 9);
+
+  const xpGradient = ctx.createLinearGradient(410, 0, 1060, 0);
+  xpGradient.addColorStop(0, "#8A4DFF");
+  xpGradient.addColorStop(1, "#FFD98A");
+
+  ctx.fillStyle = xpGradient;
+  ctx.fill();
+
+  // XP numbers
+  ctx.font = "bold 17px Sans";
+  ctx.fillStyle = "#FFFFFF";
+
+  ctx.fillText(
+    `${exp - currentLevelXP} / ${nextLevelXP - currentLevelXP} XP`,
+    410,
+    455
+  );
+
+  // ===== BRANDING =====
+  ctx.textAlign = "center";
+  ctx.font = "bold 24px Sans";
+  ctx.fillStyle = "#FFD98A";
+
+  ctx.fillText("AHMAD RDX", 800, 455);
+
+  // ===== SAVE CARD =====
+  const fs = global.nodemodule["fs-extra"];
+
+  const cachePath = __dirname + "/cache";
+
+  fs.ensureDirSync(cachePath);
+
+  const imgPath = cachePath + "/ahmad_rdx_rankup.png";
+
+  fs.writeFileSync(imgPath, canvas.toBuffer("image/png"));
+
+  // ===== SEND MESSAGE =====
+  const msgBody =
+`👑 𝗔𝗛𝗠𝗔𝗗 𝗥𝗗𝗫 𝗥𝗔𝗡𝗞𝗨𝗣 👑
+
+🎉 Congratulations ${displayName}!
+🔥 Aap Level ${nextLevel} par pohanch gaye!
+
+💜 Keep Growing • Keep Winning`;
+
+  api.sendMessage(
+    {
+      body: msgBody,
+      attachment: fs.createReadStream(imgPath)
+    },
+    threadID,
+    err => {
+      if (err) {
+        console.log("Rankup send error:", err);
+      }
+
+      fs.unlink(imgPath, () => {});
+    }
+  );
+};
+    
