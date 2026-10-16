@@ -1,59 +1,166 @@
+/**
+ * Command & Event Manager Engine with Unsend Magic & GitHub Sync
+ * Path: models/commands/cmdmanager.js
+ * Target Repo: Ahmad030687/Shaan-bot
+ * Location: models/commands & models/events
+ * Credits: SARDAR RDX (Strictly preserved)
+ * Upgraded & Powered by: AHMAD RDX
+ */
 
 const fs = require("fs-extra");
 const path = require("path");
+const axios = require("axios");
+
+const commandsDir = path.join(__dirname);
+const eventsDir = path.join(__dirname, "..", "events");
+
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_REPO = "Ahmad030687/Shaan-bot";
+const GITHUB_BRANCH = "main";
+
+async function pushToGithub(filePathInRepo, content, commitMessage, sha = null) {
+  if (!GITHUB_TOKEN) return false;
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePathInRepo}`;
+    const payload = {
+      message: commitMessage,
+      content: Buffer.from(content, "utf8").toString("base64"),
+      branch: GITHUB_BRANCH
+    };
+    if (sha) payload.sha = sha;
+
+    await axios.put(url, payload, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'AHMAD-RDX-Bot'
+      }
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function getGithubFileSha(filePathInRepo) {
+  if (!GITHUB_TOKEN) return null;
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePathInRepo}?ref=${GITHUB_BRANCH}`;
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'AHMAD-RDX-Bot'
+      }
+    });
+    return response.data.sha;
+  } catch (e) {
+    return null;
+  }
+}
+
+function registerModuleToBot(localFilePath, isEvent = false) {
+  try {
+    if (require.cache[require.resolve(localFilePath)]) {
+      delete require.cache[require.resolve(localFilePath)];
+    }
+    const pull = require(localFilePath);
+    global.client = global.client || {};
+
+    if (isEvent) {
+      global.client.events = global.client.events || new Map();
+      if (pull.config && pull.config.name) {
+        global.client.events.set(pull.config.name.toLowerCase(), pull);
+        return true;
+      }
+    } else {
+      global.client.commands = global.client.commands || new Map();
+      global.client.aliases = global.client.aliases || new Map();
+      if (pull.config && pull.config.name) {
+        const cmdName = pull.config.name.toLowerCase();
+        global.client.commands.set(cmdName, pull);
+        if (pull.config.aliases && Array.isArray(pull.config.aliases)) {
+          pull.config.aliases.forEach(alias => {
+            global.client.aliases.set(alias.toLowerCase(), cmdName);
+          });
+        }
+        return true;
+      }
+    }
+  } catch (err) {
+    console.error("[AHMAD RDX Load Error]:", err.message);
+  }
+  return false;
+}
 
 module.exports.config = {
-  name: "editcmd",
-  version: "1.0.0",
+  name: "cmdmanager",
+  version: "11.0.0",
   hasPermssion: 2,
-  credits: "AHMAD RDX",
-  description: "Edit existing command by replying with new code",
-  commandCategory: "system",
-  usages: "editcmd <command name>",
-  cooldowns: 3
+  credits: "SARDAR RDX", // Strict core credit preserved
+  description: "Command/Event editor with unsend and GitHub sync by AHMAD RDX",
+  commandCategory: "System",
+  usages: ".editcmd [command_name]",
+  cooldowns: 2,
+  aliases: ["editcmd", "addcmd", "cmd", "editevt", "addevt", "evt"]
 };
 
 module.exports.run = async function ({ api, event, args }) {
-  const { threadID, messageID, senderID } = event;
+  const { threadID, messageID, senderID, body } = event;
+  const cleanBody = (body || "").trim();
+  const firstWord = cleanBody.split(/\s+/)[0].toLowerCase();
 
-  const name = String(args[0] || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\.js$/i, "");
+  const isEventMode = ["editevt", "addevt", "evt"].some(alias => firstWord.includes(alias));
+  const targetType = isEventMode ? "Event" : "Command";
+  const targetDir = isEventMode ? eventsDir : commandsDir;
+  const repoSubDir = isEventMode ? "models/events" : "models/commands";
 
-  if (!name || !/^[a-z0-9_-]+$/i.test(name)) {
+  if (!fs.existsSync(commandsDir)) fs.mkdirSync(commandsDir, { recursive: true });
+  if (!fs.existsSync(eventsDir)) fs.mkdirSync(eventsDir, { recursive: true });
+
+  const commandName = args[0];
+  if (!commandName) {
     return api.sendMessage(
-      "Usage: .editcmd <command name>\nExample: .editcmd pair",
+      `✦━━━ ❪ 💡 COMMAND MANAGER ❫ ━━━✦\n\n` +
+      `📌 **Usage:**\n` +
+      `👉 .editcmd <command_name>\n` +
+      `👉 .editevt <event_name>\n\n` +
+      `👑 **POWERED BY AHMAD RDX**`,
       threadID,
       messageID
     );
   }
 
-  const filePath = path.join(__dirname, `${name}.js`);
+  const fileNameOnly = commandName.toLowerCase().trim().replace(/\.js$/, "");
+  const fileName = `${fileNameOnly}.js`;
+  const filePath = path.join(targetDir, fileName);
+  const githubPath = `${repoSubDir}/${fileName}`;
 
-  if (!(await fs.pathExists(filePath))) {
-    return api.sendMessage(
-      `❌ Command file nahi mili: ${name}.js`,
-      threadID,
-      messageID
-    );
+  let oldCode = "// New module code here";
+  if (fs.existsSync(filePath)) {
+    oldCode = fs.readFileSync(filePath, "utf-8");
   }
 
   return api.sendMessage(
-    `📝 EDIT COMMAND: ${name}.js\n\n` +
-    `Ab is message par REPLY karke naya complete JavaScript code paste karo.\n\n` +
-    `⚠️ Purana code replace ho jayega.`,
+    `📝 **EDITING TARGET:** ${repoSubDir}/${fileName}\n\n` +
+    `👇 Naya code reply karein. (Naya code save hote hi ye message delete ho jayega)\n\n` +
+    `\`\`\`javascript\n${oldCode}\n\`\`\``,
     threadID,
-    (error, info) => {
-      if (error || !info) return;
+    (err, info) => {
+      if (err) return;
+      global.client = global.client || {};
+      global.client.handleReply = global.client.handleReply || [];
 
-      global.client.editcmdPending =
-        global.client.editcmdPending || new Map();
-
-      global.client.editcmdPending.set(String(info.messageID), {
-        name,
-        senderID: String(senderID),
-        threadID: String(threadID)
+      global.client.handleReply.push({
+        name: this.config.name,
+        messageID: info.messageID,
+        author: senderID,
+        commandName: fileNameOnly,
+        filePath: filePath,
+        githubPath: githubPath,
+        isEventMode: isEventMode,
+        targetType: targetType,
+        repoSubDir: repoSubDir
       });
     },
     messageID
@@ -61,90 +168,43 @@ module.exports.run = async function ({ api, event, args }) {
 };
 
 module.exports.handleReply = async function ({ api, event, handleReply }) {
-  const pending = global.client.editcmdPending;
-  if (!pending) return;
+  const { body, threadID, messageID, senderID } = event;
 
-  const promptID = String(handleReply.messageID);
-  const request = pending.get(promptID);
-
-  if (!request) return;
-
-  if (String(event.senderID) !== request.senderID) {
-    return api.sendMessage(
-      "❌ Ye edit prompt kisi aur user ne start kiya tha.",
-      event.threadID,
-      event.messageID
-    );
-  }
-
-  const code = String(event.body || "").trim();
-
-  if (!code || code.toLowerCase() === "cancel") {
-    pending.delete(promptID);
-    return api.sendMessage("❎ Edit cancel ho gaya.", event.threadID);
-  }
-
-  const filePath = path.join(__dirname, `${request.name}.js`);
-  const tempPath = `${filePath}.tmp`;
+  if (senderID != handleReply.author) return;
 
   try {
-    // JavaScript syntax check
-    new Function(code);
+    const codeContent = (body || "").trim();
 
-    // Temporary file mein save
-    await fs.writeFile(tempPath, code, "utf8");
+    // 1. Local disk par code save karein
+    fs.writeFileSync(handleReply.filePath, codeContent, "utf-8");
 
-    // Backup existing command
-    const backupPath = `${filePath}.backup`;
-    await fs.copy(filePath, backupPath);
+    // 2. Active memory reload
+    const isLoaded = registerModuleToBot(handleReply.filePath, handleReply.isEventMode);
 
-    try {
-      await fs.move(tempPath, filePath, { overwrite: true });
-
-      // Reload command
-      const resolved = require.resolve(filePath);
-      delete require.cache[resolved];
-
-      const command = require(resolved);
-
-      if (!command.config || !command.config.name ||
-          typeof command.run !== "function") {
-        throw new Error("Invalid command structure");
-      }
-
-      global.client.commands.set(
-        command.config.name.toLowerCase(),
-        command
-      );
-
-      await fs.remove(backupPath);
-      pending.delete(promptID);
-
-      return api.sendMessage(
-        `✅ COMMAND UPDATED!\n\n` +
-        `📁 File: ${request.name}.js\n` +
-        `⚡ Runtime: Reloaded\n` +
-        `👑 AHMAD RDX`,
-        event.threadID,
-        event.messageID
-      );
-    } catch (error) {
-      // Error par old code restore
-      await fs.move(backupPath, filePath, { overwrite: true });
-      delete require.cache[require.resolve(filePath)];
-      pending.delete(promptID);
-
-      return api.sendMessage(
-        `❌ Code load nahi hua.\nPurana code restore kar diya.\n\n${error.message}`,
-        event.threadID,
-        event.messageID
-      );
-    }
-  } catch (error) {
-    return api.sendMessage(
-      `❌ JavaScript syntax error:\n${error.message}`,
-      event.threadID,
-      event.messageID
+    // 3. GitHub repository sync
+    const sha = await getGithubFileSha(handleReply.githubPath);
+    const ghSynced = await pushToGithub(
+      handleReply.githubPath,
+      codeContent,
+      `Update ${handleReply.githubPath} via handleReply`,
+      sha
     );
+
+    // 4. Purana setup prompt message unsend karein
+    if (handleReply.messageID) {
+      api.unsendMessage(handleReply.messageID);
+    }
+
+    const replyMsg =
+      `✦━━ ❪ ⚙️ ${handleReply.targetType.toUpperCase()} SAVED ❫ ━━✦\n\n` +
+      `📁 Location: ${handleReply.repoSubDir}/${handleReply.commandName}.js\n` +
+      `⚡ Active Load: ${isLoaded ? "SUCCESS ✅" : "SYNTAX ERR ⚠️"}\n` +
+      `☁️ GitHub Sync: ${ghSynced ? "SUCCESS ✅" : "PENDING ⚠️"}\n\n` +
+      `👑 **POWERED BY AHMAD RDX**`;
+
+    return api.sendMessage(replyMsg, threadID, messageID);
+
+  } catch (error) {
+    return api.sendMessage(`❌ ERROR: ${error.message}`, threadID, messageID);
   }
 };
