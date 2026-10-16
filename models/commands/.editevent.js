@@ -17,9 +17,8 @@ module.exports.run = async function ({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
 
   const eventName = String(args[0] || "")
-    .toLowerCase()
-    .replace(/\.js$/, "")
-    .trim();
+  .replace(/\.js$/, "")
+  .trim();
 
   if (!eventName || !/^[a-z0-9_-]+$/i.test(eventName)) {
     return api.sendMessage(
