@@ -1,133 +1,125 @@
 
 /**
- * GOIBOT PREMIUM EDITION
- * Developer: AHMAD RDX
+ * AHMAD RDX — PREMIUM AUTO REPLY
  * Original Credits: MR SHAAN
  */
 
 const moment = require("moment-timezone");
 
 module.exports.config = {
-  name: "goibot",
-  version: "3.0.0",
+  name: "ahmadrdx",
+  version: "3.1.0",
   hasPermssion: 0,
   credits: "MR SHAAN",
-  description: "Premium funny no-prefix auto replies",
+  description: "AHMAD RDX premium funny auto-reply",
   commandCategory: "Noprefix",
-  usages: "Bot + message",
+  usages: "Bot",
   cooldowns: 3
 };
 
 const jokes = [
   "😂 Single itna hoon ke khuwab mein bhi larki keh deti hai: bhai side ho!",
-  "🤣 Career Titanic bana hua hai, aur ghar wale poochte hain shaadi kab?",
+  "🤣 Career Titanic bana hua hai aur ghar wale poochte hain shaadi kab?",
   "🙈 Crush online aayi, meri kismat offline ho gayi.",
   "💔 Uski DP roz dekhta hoon, lagta hai relationship WiFi se chal raha hai.",
   "😂 Parhai kal se, aur kal har roz aata hai!",
-  "🤣 Mera dil bohat bara hai, bas jeb chhoti hai.",
-  "😎 Attitude apna VIP, balance phir bhi zero!",
-  "😂 Ammi kehti hain kuch ban jao, main kehta hoon chai bana doon?",
-  "💀 Itna single hoon ke wedding card par bhi mera naam nahi aata.",
+  "😎 Attitude VIP, balance phir bhi zero!",
   "🤣 Online sher, saamne aaye to silent mode!",
   "😂 Meri love story ka title: Network Error.",
   "🙃 Crush ne kaha you're like a brother. Bas phir zindagi khatam!",
-  "🤣 Paisa hota to tension nahi hoti, paisa hi nahi to tension kis baat ki?",
   "😂 Gym kal se, biryani aaj se!",
   "😴 Alarm roz bajta hai, lekin meri kamyabi soti rehti hai.",
-  "💔 Loyal dhoondte dhoondte khud hi cartoon ban gaya.",
   "🤣 Shaadi ka shoq hai, pehle koi reply to kar de!",
   "😂 Mere naseeb ka charger bhi loose connection hai.",
-  "😎 Main handsome nahi, bas camera mujh se darta hai.",
-  "🤣 Zindagi mein do maslay: paisa nahi, aur paisay walon ka attitude!",
-  "😂 Crush ka reply: hmm. Meri umeedein: khatam!",
-  "🙈 Itna shareef hoon ke jhoot bolte hue bhi sach bol deta hoon.",
-  "🤣 Doston ka udhaar aur meri tension kabhi khatam nahi hoti.",
-  "😂 Main jogging par nikla tha, samosa dekh kar wapas aa gaya.",
   "💀 Meri kismat ka software update pending hai.",
-  "🤣 Pyaar andha hota hai, lekin ghar wale 4K mein dekhte hain.",
+  "🤣 Pyaar andha hota hai, ghar wale 4K mein dekhte hain.",
   "😂 Salary aati hai guest ban kar, bills usay kidnap kar lete hain.",
   "😜 Mujhe ignore mat karo, main khud ko bhi mushkil se bardasht karta hoon.",
-  "🤣 Meri personality premium hai, bas pocket free version hai.",
+  "🤣 Meri personality premium hai, pocket free version hai.",
   "😂 Exam mein dimagh loading, paper ka time over!",
-  "🙈 Babu shona chhoro, pehle batao WiFi ka password kya hai?",
-  "🤣 Main bohat romantic hoon, bas audience available nahi.",
-  "😂 Mere plans NASA level ke hain, execution chai tak limited hai.",
-  "😎 AHMAD RDX ka bot hoon, jokes bhi royal marta hoon!",
+  "🙈 Babu shona chhoro, pehle WiFi ka password batao.",
+  "🤣 Main romantic hoon, bas audience available nahi.",
+  "😂 Mere plans NASA level ke, execution chai tak limited.",
   "🤣 Zindagi short hai, lekin Monday bohat lamba hai.",
   "😂 Crush ne seen kar diya, ab main bhi duniya ko seen karunga.",
-  "🙃 Ghar wale kehte hain phone chhoro, phone kehta hai mujhe mat chhoro.",
-  "🤣 Itni mehnat se online aata hoon, koi poochta bhi nahi kahan thay!",
-  "😂 Mera future bright hai, bas bijli ka bill pending hai.",
-  "😜 Mujhe attitude nahi, bas neend poori nahi hoti.",
-  "🤣 Dost kehta hai setting karwa doon, phir apni hi setting nahi hoti.",
+  "🤣 Meri kismat aur mobile battery dono 1% par hain.",
+  "😂 Main jogging par nikla tha, samosa dekh kar wapas aa gaya.",
+  "😎 Dil king wala, wallet student wala.",
+  "🤣 Love at first sight? Mere saath sleep at first lecture hota hai.",
+  "😂 Ghar wale kehte hain phone chhoro, phone kehta hai mujhe mat chhoro.",
+  "🤣 Itna single hoon ke wedding card par bhi naam nahi aata.",
   "😂 Main diet par hoon; sirf biryani, pizza aur mithai allowed hain.",
   "💔 Usne kaha change ho jao, main ne DP change kar li.",
   "🤣 Meri life mein suspense zyada, success kam hai.",
-  "😂 Itna busy hoon ke khud ko reply dena bhi bhool jata hoon.",
-  "😎 Dil king wala, wallet student wala.",
-  "🤣 Love at first sight? Mere saath to sleep at first lecture hota hai.",
-  "😂 Ammi ki nazar mein main mobile ka permanent employee hoon.",
-  "🙈 Single log udaas na hon, couple logon ka recharge bhi khatam hota hai.",
-  "🤣 Meri kismat aur mobile battery dono 1% par hain.",
-  "😂 Aaj ka mission: kaam kam, snacks zyada!"
+  "😂 Itna busy hoon ke khud ko reply dena bhool jata hoon.",
+  "🙈 Single log udaas na hon, couples ka recharge bhi khatam hota hai.",
+  "😂 Ammi kehti hain kuch ban jao, main kehta hoon chai bana doon?",
+  "🤣 Dost kehta hai setting karwa doon, phir apni hi setting nahi hoti.",
+  "😂 Mera future bright hai, bas bijli ka bill pending hai.",
+  "🤣 Meri salary itni jaldi khatam hoti hai ke bank bhi miss karta hai.",
+  "😂 Main handsome nahi, camera mujh se darta hai.",
+  "🤣 Doston ka udhaar aur meri tension kabhi khatam nahi hoti.",
+  "😂 Meri life ka password bhi mujhe yaad nahi.",
+  "😎 AHMAD RDX ka bot hoon, jokes bhi royal marta hoon.",
+  "🤣 Crush ko message likha, phir khud hi sharma kar delete kar diya.",
+  "😂 Phone 100% charged, lekin meri energy 2% par hai.",
+  "🤣 Itni izzat ghar mein nahi milti jitni phone ko milti hai.",
+  "😂 Meri kismat buffering par hai, thora wait karo.",
+  "🤣 Paisa aur sukoon dono mujhe block kar chuke hain.",
+  "😂 Main mature ho gaya hoon, ab ro kar status lagata hoon.",
+  "😜 Zindagi mein ek hi goal: tension kam aur biryani zyada!"
 ];
 
 const replies = {
-  "hi": "👋 Hello ji! Assalamualaikum bolo, sawab bhi milega aur style bhi! 💖",
-  "hello": "🌸 Hello hello! Kya haal hain, VIP guest?",
+  "hi": "👋 Assalamualaikum ji! Kya haal hain? 💖",
+  "hello": "🌸 Hello ji! Aaj kis ki taang kheenchni hai? 😂",
   "salam": "🌙 Wa Alaikum Assalam wa Rahmatullah ❤️",
   "assalamualaikum": "🌙 Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh ❤️",
   "السلام عليكم": "🌙 وعليكم السلام ورحمة الله وبركاته",
   "thanks": "🥰 Bas bas, itni tareef se bot sharma jayega!",
-  "thank you": "✨ Welcome ji! Dua mein yaad rakhna.",
-  "bye": "👋 Allah Hafiz! Wapas aana, warna bot attendance lagayega 😂",
-  "good night": "🌙 Good night! Khuwabon mein bhi WiFi full signals ho 😂",
+  "thank you": "✨ Welcome ji! Khush raho.",
+  "bye": "👋 Allah Hafiz! Wapas aana, attendance lagegi 😂",
+  "good night": "🌙 Good night! Khuwabon mein WiFi full signals ho 😂",
   "gn": "🌙 Sweet dreams! Crush reply kare, Ameen 😂",
   "good morning": "☀️ Good morning! Utho ji, duniya aage nikal rahi hai!",
   "morning": "☀️ Morning ji! Chai ho jaye? ☕",
-  "owner": "👑 BOT OWNER\n\n✨ AHMAD RDX\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🔗 Facebook: facebook.com/profile.php?id=100016828397863",
+  "owner": "╭━━〔 👑 OWNER 〕━━╮\n\n✨ AHMAD RDX\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🔗 Facebook: facebook.com/profile.php?id=100016828397863\n\n╰━━〔 AHMAD RDX 〕━━╯",
   "bot ka malik": "👑 Mera creator AHMAD RDX hai! Premium bot, premium owner 😎",
-  "shaan": "😂 MR SHAAN credits mein hain, lekin AHMAD RDX branding bhi yaad rakhna!",
+  "shaan": "😎 Original credits: MR SHAAN | Branding: AHMAD RDX",
   "janu": "🙈 Janu sirf kehne se nahi banta, pehle chai pilao 😂",
-  "jan": "🌸 Ji janu, farmayein. Drama free service available hai!",
+  "jan": "🌸 Ji janu, farmayein. Drama free service available!",
   "hug": "🫂 Virtual hug accepted! Ab biryani bhi bhej do 😂",
   "hug me": "🫂 Lo ji hug! Ab emotional damage band karo 😂",
-  "funny": "😂 Joke suno: meri salary itni jaldi khatam hoti hai ke bank bhi kehta hai dobara kab aaoge?",
-  "songs": "🎶 Dil toota hai, lekin Bluetooth abhi connected hai 😂",
+  "funny": "😂 Joke: Meri salary itni jaldi khatam hoti hai ke bank bhi kehta hai, dobara kab aaoge?",
   "hate you": "🥺 Itna bhi bura nahi hoon, charger bhi share kar leta hoon!",
-  "busy": "😎 Busy hoon ji, apni imaginary girlfriend se baat chal rahi hai!",
+  "busy": "😎 Busy hoon ji, imaginary girlfriend se baat chal rahi hai!",
   "wow": "✨ Wow aap bhi! Compliments ka bill baad mein bhejunga 😂",
   "delete": "😂 Pehle message bheja, ab delete? Yeh kaisa relationship hai!",
-  "logo": "🎨 Logo commands ke liye apne bot ke available logo commands check karein.",
-  "logos": "🎨 Logo commands ke liye apne bot ke available logo commands check karein.",
   "tharki": "🙄 Main masoom bot hoon, ilzaam lagane se pehle saboot lao 😂",
-  "tharki bot": "😇 Main to seedha saadha code hoon, shararat user karta hai!",
   "koi hai": "🙋 Main hoon na! Server room mein akela baitha hoon 😂",
   "acha": "🌸 Achaaa ji! Baat mein twist lag raha hai 😂",
   "acha ji": "🙈 Han ji, aur sunao!",
-  "by": "👋 Allah Hafiz ji, khayal rakhna!",
-  "shadi karoge": "😂 Pehle rishta bot ke developer AHMAD RDX ko bhejo!",
+  "shadi karoge": "😂 Pehle rishta developer AHMAD RDX ko bhejo!",
   "mujhse shadi karoge": "💍 Pehle system requirements match karwa lo 😂",
   "stop": "🤐 Theek hai, chup mode ka drama shuru!",
-  "chup": "🤫 Okay ji, ab sirf premium silence!",
+  "chup": "🤫 Okay ji, premium silence activated!",
   "i love you": "❤️ Aww! Bot ko pyaar? AHMAD RDX ne kamaal kar diya 😂",
   "love you": "💖 Love received! Ab bot ko update bhi karwa dena 😂",
   "i miss you": "🥹 Main yahin hoon! Server se door nahi gaya.",
   "miss u": "🌸 Aww, online hi hoon ji!",
   "kaise ho": "😎 Main fit hoon, bas RAM ko thora pyaar chahiye!",
   "kese ho": "✨ Main zabardast! Aap sunao ji?",
-  "ladki ho": "🤖 Main bot hoon ji, meri gender settings abhi pending hain!",
+  "ladki ho": "🤖 Main bot hoon ji, meri gender settings pending hain!",
   "inbox aa": "😂 Group mein baat karo ji, inbox ka traffic bohat hai!",
-  "ib aa": "🙈 Yahin bolo, group bhi family hai 😂",
   "mar ja": "🥺 Aisi baat na karo ji, joke maaro aur khush raho.",
   "kill you": "🤖 Pehle mujhe uninstall to kar ke dikhao 😂",
   "ganda": "😂 Aapki soch ka antivirus update chahiye!",
-  "ganda bot": "😎 Premium bot hoon, bas jokes thore dusty hain!"
+  "ganda bot": "😎 Premium bot hoon, jokes thore dusty hain!",
+  "tera malik kon hai": "👑 AHMAD RDX — mera creator aur boss!",
+  "is bot ka malik kon hai": "👑 AHMAD RDX — Powered by AHMAD RDX!"
 };
 
-module.exports.handleEvent = async function({
-  api, event, Users
-}) {
+module.exports.handleEvent = async function({ api, event, Users }) {
   try {
     if (!event.body || event.senderID === api.getCurrentUserID()) return;
 
@@ -136,62 +128,58 @@ module.exports.handleEvent = async function({
     const threadID = event.threadID;
     const messageID = event.messageID;
 
-    // Exact keyword triggers
-    if (replies[text]) {
-      return api.sendMessage(
-        replies[text],
-        threadID,
-        undefined,
-        messageID
-      );
-    }
+    const send = msg =>
+      api.sendMessage(msg, threadID, undefined, messageID);
 
-    // Additional keyword matching
+    if (replies[text]) return send(replies[text]);
+
     if (/\b(kamina|sala|saala)\b/i.test(text)) {
-      return api.sendMessage(
-        "🙄 Zubaan control ji! AHMAD RDX ko complaint kar doon? 😂",
-        threadID,
-        undefined,
-        messageID
-      );
+      return send("🙄 Zubaan control ji! AHMAD RDX ko complaint kar doon? 😂");
     }
 
-    if (/\b(bot|goibot)\b/i.test(body)) {
-      const name = Users
-        ? await Users.getNameUser(event.senderID).catch(() => "Dost")
-        : "Dost";
+    if (/\b(bot|ahmad rdx)\b/i.test(body)) {
+      let name = "Dost";
+      try {
+        if (Users) name = await Users.getNameUser(event.senderID) || name;
+      } catch (_) {}
 
-      const reply = jokes[Math.floor(Math.random() * jokes.length)];
+      const joke = jokes[Math.floor(Math.random() * jokes.length)];
       const time = moment.tz("Asia/Karachi").format("hh:mm A");
 
-      const msg =
-`╭━━━〔 ✦ GOIBOT PREMIUM ✦ 〕━━━╮
- 
-  ✨ Hey, ${name}!
-  💬 Tum ne bot ko yaad kiya?
+      return send(
+`╭━━━〔 👑 AHMAD RDX 〕━━━╮
 
-  ─────────────────
-  ${reply}
-  ─────────────────
+✨ Assalamualaikum, ${name}!
+💬 Tum ne mujhe yaad kiya?
 
-  👑 AHMAD RDX
-  🕒 ${time}
-╰━━━━━━━━━━━━━━━━━━━━━━╯`;
+━━━━━━━━━━━━━━━━━━
+😂 ${joke}
+━━━━━━━━━━━━━━━━━━
 
-      return api.sendMessage(msg, threadID, undefined, messageID);
+💎 PREMIUM FUN BOT
+🕒 ${time}
+👑 POWERED BY AHMAD RDX
+
+╰━━━━━━━━━━━━━━━━━━━━╯`
+      );
     }
   } catch (err) {
-    console.error("[GOIBOT ERROR]", err);
+    console.error("[AHMAD RDX ERROR]", err);
   }
 };
 
 module.exports.run = function({ api, event }) {
   return api.sendMessage(
-    "╭━━〔 ✦ AHMAD PREMIUM ✦ 〕━━╮\n\n" +
-    "🤖 Main active hoon!\n" +
-    "💬 Mujhe message mein 'Bot' keh kar bulao.\n\n" +
-    "👑 AHMAD RDX\n" +
-    "╰━━━━━━━━━━━━━━━━━━━━╯",
+`╭━━━〔 👑 AHMAD RDX 〕━━━╮
+
+✅ PREMIUM AUTO REPLY ACTIVE
+😂 Funny replies ready!
+💬 Message mein "Bot" likh kar bulao.
+
+━━━━━━━━━━━━━━━━━━
+✨ Stylish • Funny • Premium
+👑 POWERED BY AHMAD RDX
+╰━━━━━━━━━━━━━━━━━━━━╯`,
     event.threadID,
     undefined,
     event.messageID
