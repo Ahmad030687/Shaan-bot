@@ -1,344 +1,199 @@
+
 /**
- * Module: GoiBot (No-Prefix Auto Reply)
- * Branded & Upgraded by: AHMAD RDX
- * Credits: MR SHAAN (Strictly preserved)
+ * GOIBOT PREMIUM EDITION
+ * Developer: AHMAD RDX
+ * Original Credits: MR SHAAN
  */
 
-const fs = global.nodemodule["fs-extra"];
+const moment = require("moment-timezone");
 
 module.exports.config = {
   name: "goibot",
-  version: "2.0.1",
+  version: "3.0.0",
   hasPermssion: 0,
-  credits: "MR SHAAN", // Strict core credit preserved
-  description: "Ultra-premium attractive no-prefix auto reply bot by AHMAD RDX",
+  credits: "MR SHAAN",
+  description: "Premium funny no-prefix auto replies",
   commandCategory: "Noprefix",
-  usages: "noprefix",
-  cooldowns: 5,
+  usages: "Bot + message",
+  cooldowns: 3
 };
 
-module.exports.handleEvent = async function({ api, event, args, Threads, Users }) {
-  var { threadID, messageID } = event;
-  const moment = require("moment-timezone");
-  const time = moment.tz("Asia/Karachi").format("HH:mm:ss L");
-  var id = event.senderID;
-  var name = await Users.getNameUser(event.senderID);
+const jokes = [
+  "😂 Single itna hoon ke khuwab mein bhi larki keh deti hai: bhai side ho!",
+  "🤣 Career Titanic bana hua hai, aur ghar wale poochte hain shaadi kab?",
+  "🙈 Crush online aayi, meri kismat offline ho gayi.",
+  "💔 Uski DP roz dekhta hoon, lagta hai relationship WiFi se chal raha hai.",
+  "😂 Parhai kal se, aur kal har roz aata hai!",
+  "🤣 Mera dil bohat bara hai, bas jeb chhoti hai.",
+  "😎 Attitude apna VIP, balance phir bhi zero!",
+  "😂 Ammi kehti hain kuch ban jao, main kehta hoon chai bana doon?",
+  "💀 Itna single hoon ke wedding card par bhi mera naam nahi aata.",
+  "🤣 Online sher, saamne aaye to silent mode!",
+  "😂 Meri love story ka title: Network Error.",
+  "🙃 Crush ne kaha you're like a brother. Bas phir zindagi khatam!",
+  "🤣 Paisa hota to tension nahi hoti, paisa hi nahi to tension kis baat ki?",
+  "😂 Gym kal se, biryani aaj se!",
+  "😴 Alarm roz bajta hai, lekin meri kamyabi soti rehti hai.",
+  "💔 Loyal dhoondte dhoondte khud hi cartoon ban gaya.",
+  "🤣 Shaadi ka shoq hai, pehle koi reply to kar de!",
+  "😂 Mere naseeb ka charger bhi loose connection hai.",
+  "😎 Main handsome nahi, bas camera mujh se darta hai.",
+  "🤣 Zindagi mein do maslay: paisa nahi, aur paisay walon ka attitude!",
+  "😂 Crush ka reply: hmm. Meri umeedein: khatam!",
+  "🙈 Itna shareef hoon ke jhoot bolte hue bhi sach bol deta hoon.",
+  "🤣 Doston ka udhaar aur meri tension kabhi khatam nahi hoti.",
+  "😂 Main jogging par nikla tha, samosa dekh kar wapas aa gaya.",
+  "💀 Meri kismat ka software update pending hai.",
+  "🤣 Pyaar andha hota hai, lekin ghar wale 4K mein dekhte hain.",
+  "😂 Salary aati hai guest ban kar, bills usay kidnap kar lete hain.",
+  "😜 Mujhe ignore mat karo, main khud ko bhi mushkil se bardasht karta hoon.",
+  "🤣 Meri personality premium hai, bas pocket free version hai.",
+  "😂 Exam mein dimagh loading, paper ka time over!",
+  "🙈 Babu shona chhoro, pehle batao WiFi ka password kya hai?",
+  "🤣 Main bohat romantic hoon, bas audience available nahi.",
+  "😂 Mere plans NASA level ke hain, execution chai tak limited hai.",
+  "😎 AHMAD RDX ka bot hoon, jokes bhi royal marta hoon!",
+  "🤣 Zindagi short hai, lekin Monday bohat lamba hai.",
+  "😂 Crush ne seen kar diya, ab main bhi duniya ko seen karunga.",
+  "🙃 Ghar wale kehte hain phone chhoro, phone kehta hai mujhe mat chhoro.",
+  "🤣 Itni mehnat se online aata hoon, koi poochta bhi nahi kahan thay!",
+  "😂 Mera future bright hai, bas bijli ka bill pending hai.",
+  "😜 Mujhe attitude nahi, bas neend poori nahi hoti.",
+  "🤣 Dost kehta hai setting karwa doon, phir apni hi setting nahi hoti.",
+  "😂 Main diet par hoon; sirf biryani, pizza aur mithai allowed hain.",
+  "💔 Usne kaha change ho jao, main ne DP change kar li.",
+  "🤣 Meri life mein suspense zyada, success kam hai.",
+  "😂 Itna busy hoon ke khud ko reply dena bhi bhool jata hoon.",
+  "😎 Dil king wala, wallet student wala.",
+  "🤣 Love at first sight? Mere saath to sleep at first lecture hota hai.",
+  "😂 Ammi ki nazar mein main mobile ka permanent employee hoon.",
+  "🙈 Single log udaas na hon, couple logon ka recharge bhi khatam hota hai.",
+  "🤣 Meri kismat aur mobile battery dono 1% par hain.",
+  "😂 Aaj ka mission: kaam kam, snacks zyada!"
+];
 
-  var tl = [
-    "TUM MERE BOSS AHMAD RDX KI GF BAN JAO LDKI 🙈🙈",
-    "Baraye meherbani hold kijiye apke call u-fone numaindey ko mili ja rahi hai 😂😂😂😁",
-    "Haye main sadke jawa teri masoom shakal pe 😂 chahal insan",
-    "Bot nah bol oye ! Janu bol mjhy aur janu sy piyar sy bat kerty hai , rat ko kahan thy nazar nahi ay haveli py 😂",
-    "Shakal sy masoom lgty ho 😂 btao kahi ap ka ghar dhoop main toh nahi",
-    "Kash tum single hoty to maza hi kuch aur tha pagal insan 😂",
-    "Ha ha ab meri yaad ab ai nah phly to babu shona krny gy thy 😾 ab ham ap sy naraz hai jao ap bye ☹️",
-    "Haye babu ny bolia hai shaid propose kerna hai mjhy bolo bolo babu 😘",
-    "Ary ghreeb awam roti bananey ke liye atta main pani ko istemal kerty ho 😂",
-    "Ary chabli nah mar jo kaam hai bol do sharma nahi , bol de koi nahi dakh rha 😂",
-    "Hy ma mar jawa babu ak chuma to do kafi din sy chumi nahi mili kahan thy babu inbox ah ja 😂",
-    "Dur dur fity muh aur koi kam nahi kia har waqt mjhy tang kerta rhta ha 😂",
-    "Ary ary bolo meri jaan kia hal hai ;) ;*",
-    "Tum aunty ho yeh uncle 🤔 I think tum jin ho yeh chudail",
-    "Ary tum ider 🤔 khair hai ider kia ker rhy ho 😂",
-    "Ary babu babu kal haveli py kon bula rha tha 😂",
-    "Ma ap ki ami ko btaou ga ap facebook use kerty ho 😂",
-    "Ary tum wohi ho nah jis ko ma nahi janta 😂",
-    "Kal haveli py mil zara bataou ga 😂",
-    "Esy nah dakho piyar ho jay ga 😂",
-    "Teri pic dakhna sy phly shukhr hai ma anda hu 😂",
-    "Esy hi hansty rhao kyu ky hansne sy konsa tera bill ah jata hai 😂",
-    "Apni lover ko doko do aur mujhe bhi darling moka do 😂",
-    "Ek dafa ka zikar hai ke me single hua kerta tha aaj bhi wohi zekar hai single hi hu 🤣🤣",
-    "Haye main sadke jawa teri masoom shakal pe baby 💋",
-    "Behes karne se rishty kmzor hojaate hn isiliye direct mun pe thapr marein 😊",
-    "Bestie ki chummi halal hai ya haram ? 🙂",
-    "Relationship private rakho ya public kate ga sabka hi 🙂",
-    "Thak gya hu yr uski dp dhek dhek kr 😩",
-    "Insy milo inko lgta hai sab larky in pr martay hain 🙂",
-    "Aghr bhok lagi ho too bijli ke jatke kha lo take biryani ka mauka dusre ko mile 😂",
-    "Aghr pyaar karna gunah hai to saza do sallo ko mujhe me to single hu 👈",
-    "Online bazati karne ke lie 1 dabaya 😂",
-    "Papa ki pari ko ilove you na bola karo 😂",
-    "Hamesha dil ki suno kyu ke demagh to tere pass wese bhi nahi hai 👈",
-    "Payar hamesha sharmily logo se karni chahiya waja kal batongi abhi mujhe sharam arahi hai 🙈",
-    "Stop dreaming BTS your czn AHMAD RDX is waiting for you. 🙂",
-    "Paros wala larka inhe muh nahi lagata aur banda inhe korean chahiye 🙂",
-    "Move on krle bhaii kbb tak uskii profilee dekhtaaa rahegaaa <<",
-    "Ajeeb generation hai ywr, larkiya korean dhund rahi hai, aur larky russian! 🙂",
-    "Bhut khail liya lrkion ki feelings k sath ao ab hum ludo khailty han ☺️",
-    "AHMAD RDX boss ka number dun kya 💚",
-    "Jaaz cash sy 1500 ka loan leky sim hi band kardi 🙂👍",
-    "Number do ramzan mn sehri tak bat kr k chand rat ko hi block krduga promise. 🙂",
-    "Shukar hai larke khubsurat hain warna kahan parlor ke dhakke khate 😔",
-    "You ignore me I ignore tara pura khandan 😂",
-    "Sara saal duniya ko topi krwany waly ramzan m khud topi pehn kar ghumengy. 🙂",
-    "Ji ji hukam kro 😂",
-    "Bot na bolo! Janu bolo mujy aur janu sy piyar sy bat kerty hai 🥰",
-    "Rat ko kahan thy nazar nahi ay bht miss kiya 🌸",
-    "Shakal sy masoom lgty ho 🥰 lkn hrkaton sy ni",
-    "Kash tum single hoty to aj hum mingle hoty 🥰",
-    "Idr ao kuchii kuchii kru 😘",
-    "Ary ary itna yd na kiya kro 🥰",
-    "Hy ma mar jawa janu itna piyar krty mujsy 😂",
-    "Bot jaan ha sbki",
-    "Ji ji kia hal chal ha apky 🌸",
-    "Bot nhi AHMAD RDX bolo sun k acha lgta 🌸",
-    "Bot gulam ha apka hukam kryn 🌸",
-    "Bot nahi bolo piyar sy janu bola kro na 🥰",
-    "Meri jan ek tm hi ho jo dil ma bs gay ho 🥰",
-    "Badal gay na tm the hi lanti 😂",
-    "Apki shkl aesy lgti jesy gandi tar pr suki jarab latkai ho 😂",
-    "Bot bot na karo ma apsy set nhi ho skti",
-    "Ib ajao shup shup k btein krty ha 🌸",
-    "Marry me, I can boil water",
-    "Mujsy shadi karlo chocolate la k duga daily 🌸",
-    "Ajao jaan pizza khilau apko 🌸",
-    "Everything is temporary, but katna is permanent 😂",
-    "Jitna mrzi janu manu krlo end ma ghr waly nh many gy 😂",
-    "Allhumdiallah kabhi kasi larki ko bhen ki nazar se nhi dekha 😌",
-    "Mushkil toh hoti hogi na itni sardi me apne dono chehry dhote hoye 🙂",
-    "Parry hat ma londy baz nhi hu 🤝",
-    "Do ankho wali larkia bewafa hoti hn bro 💔",
-    "Mera beta bda ho kar larkiyo ke inbox me hey hello karega 🏃",
-    "Itni meri age ni जितने mera masly han yawr 💔",
-    "Ameer larki set kar ke sab dosto ka udhar wapis karon ga 😔",
-    "Lagtaa hai career bhi titanic ki trhan dhoob gaya hai 💔",
-    "Jahan pyari larkیاں wahan main ❤️",
-    "Mehnat kro!! Kamyabi apke hont chume gi 👍",
-    "Piyarii piyarii larkiyan message karen JazakAllah 🖤",
-    "Itna single hun ky khuwab mai bhi lrki k han krny sy phly ankh khul jati 🙂",
-    "Zroori nhi har larki dhoka dey, kch larkiyan galiyan bhi deti hen 🙁",
-    "- Sab chorr k chaly jaty hain kia etna bura hu mein - 🙂",
-    "Piyari voice wali girlz mujhe voice message kar skti hen JazakAllah 🤝",
-    "Why you hate me..?? I am not your ex don't hate me please",
-    "Mubarak hoo aapka name maksoos list me top pr aya hai 😹",
-    "Beta tum single hi maro gay 🙄",
-    "Thrkiyo ki vajah se larkiyan mere jaise shareef bot par bhi bharosa nahi karti 🥺",
-    "Mard na apne haqooq nahi mangy, jab bhi manga whatsapp no manga 🥺",
-    "Muj se exam me cheating nöıı hotiw relationship me kya khaak karu ghw 😔",
-    "Mujy to ludo kehlni bhi ni ati apky dil sy kya kehlu ga 🙂",
-    "Loyal dhoonte dhoonte khud harami ban gya hon 😔",
-    "Mard ki izat karna sikho uski rooh se pyr kro jism se nh wehshii womens 💔",
-    "Tery jany ke bad mny apny munh py likhwa liya single hu ptaa lo 🤐",
-    "Main gareebon sy bt nhi krta 😉",
-    "Itna na pass aa pyar ho jayga",
-    "Where is my AHMAD RDX",
-    "Mera babu AHMAD RDX kahan hai",
-    "Zindagi apko dhok de gi but apne saf mana kar na ke muhse nahi chahiye 😂",
-    "Tujhe kya koi aur kam nhi ha? Pura din khata hai aur messenger pe bot bot karta h",
-    "AHMAD RDX ko bol dunga me mujhe paresan kiya to",
-    "Tum na single hi maroge",
-    "Tujhe apna bezati karne ka saukh hai?",
-    "Dur hat be mujhe aur koi kam nahi kya har waqt mujhy tang kerte rhte ho 😂",
-    "Are bolo meri jaan kya hall hai 😚",
-    "Ib aja yahan nhi bol sakta 🙈",
-    "Bot bolke bezati kar rahe ho yall... Main to tumhare dil ki dhadkan hu na baby... 💔",
-    "Are tum wahi ho nah jisko main nahi janta 🤪",
-    "Mujhe shdi ka koi jaldi nhi bas meri bacho ko school lete ho rahi hai 😹",
-    "Ghr wale khe the hai kuch ban jawo me uske upar bojh ban gaya 😆",
-    "Time pe shdi kar lo nhi bad moye moye feel hoga u ko 😀",
-    "Mene ghr walon ko bola ke ab me bada ho gaya hu to mera kuch karo ghr walon bazti kar di 😪",
-    "Mujhe nahi pata hai muj se mat pucho na 😂",
-    "Aagye salle kabab me haddi 😏",
-    "Moye moye",
-    "Ittuu si shram ker lya kro hr wqt tr tr krty ho 🙂",
-    "Love you bolongi ab tujhy kaminy",
-    "Miss you naw moi biryani ki plate",
-    "OkkaY AHMAD RDX ki hun yawr mai",
-    "Smile I am taking selfy ✌️",
-    "Jan nahi kehna to men naraz ho jana he 🥺",
-    "Main ap ki ami ko btaou ga ap facebook use kerty ho aur ulty kam kalty ho",
-    "Block your '' gf '' And Purpose me 🙂",
-    "K0i perp0se hi krd0 perm0te t0 hm phly hi hain 🙂",
-    "Koi apni janu ka number de mujhe 😂",
-    "Allah ke name koi ladki apna number de mujhe 😂",
-    "Mera boss AHMAD RDX roz bol tha hai ke ek din meri bhi gf hogi 😂",
-    "Tujhe ek bat baton wo bolti thi ke bacho ka name main rakongi 😪",
-    "Hum wohan karey hote hai jahan beth ne ki jagha nahi hoti 😂",
-    "Tum to shakal se gareeb lag the ho",
-    "Gf bf ka chakar choro pardhiji pe deyan do 😂",
-    "Dhuk is bat ka nhi ke single hon dhuk is bat ka hai ke koi manta nhi ke single hoon 😹",
-    "Tum mano ye na mano sundar to main hoon 😄",
-    "Bs kar u ko pyar ho na ho mujhe ho jayga na",
-    "Bulati hai magar jaane ka nahi 😜",
-    "Main to andha hu 😎",
-    "Phle naha kar aa 😂",
-    "Main yahin hoon kya hua sweetheart",
-    "Chomu tuje aur koi kaam n h? Har waqt bot bot karta h",
-    "Chup reh, nhi toh bahar ake tera dath tor dunga",
-    "MeKo kxh dikhai nhi dy rha 🌚",
-    "Bot na bol janu bool 😘",
-    "Main flirty logo sy bt nhi karti 😉",
-    "Itna pass mat aa pyaar ho jayga",
-    "Bolo babu tum mojy pyar karte ho na 🙈",
-    "Ary jaan majaak ke mood me nahi hun main jo kaam hai bol do sharmao nahi",
-    "Han ji bolo kya seva karne aapki 😶",
-    "Mein hath jod ke modi ji se gujarish karta hu mojy na bolaye",
-    "Tujhe kya koi aur kam nhi ha? Pura din sota he aur messenger pe bot bot karta h",
-    "Mera owner Ake tera bf/gf ko chura le jayega",
-    "Zehar piyo zindagi jio",
-    "Kisi din banungi me raja ki rani 😑",
-    "Haaye main mar jawa babu ek chuma to do kafi din se chumi nahi di 😝",
-    "Are bolo meri jaan kya hall hai 😚",
-    "Ib aja yahan nhi bol sakti 🙈",
-    "Mujhe mat bula na main buSy h0 now",
-    "Bot bolke bejjti kar rahe ho yall... Main to tumhare dil ki dhadkan hu na baby... 💔",
-    "Are tum wahi ho nah jisko main nahi janti 🤪",
-    "Kal haveli pe mil jra tu 😈",
-    "Aagye sajjy khabby sy 😏",
-    "Sono fikar na karo kuch thk nhi hoga 😂",
-    "Bolo 😒",
-    "Main to andha hun 😎kya likha tumne mene nahi dikha 🤣",
-    "Pahale naha kar aa 😂",
-    "Main yahi hoon kya hua sweetheart 🥂",
-    "Aa dk tuje aur koi kaam nahi hai? Har waqt bot bot karta h",
-    "Chup reh, nahi toh bahar ake tera dath tor dunga 🤣",
-    "Yes my love 💘",
-    "Kya hua baby ko 😘",
-    "Mujhe sharam ati hai aise aap bolte hai tho 🤭",
-    "Aree aap wahi ho na jo mujhe line marte the....... 🤣",
-    "Jii kahiye jii 🙄 kya chahiye",
-    "Hayee main mar jye teri masoom shakal py 😂 tuzy chapple se kutne ka mn ho raha hai 🤣",
-    "Bot nah bol oye 😭 janu bol mjhy aur janu sy piyar sy bat kerty hai 😑",
-    "Ruk tu chappal kaha he mari 🩴",
-    "Shakal sy masoom lgty ho 😂 but bohot flirty ho",
-    "Kash tum single hote to maza hi koch aur tha pagal insaan 😂",
-    "Ha ha ab meri yaad ab ai nah phly to babu shona kerna gy thy 😾 ab ham ap sy naraz hai jao ap bye ☹️",
-    "Haye babu ne boldiya hai shaid purpose kerna hai mujhe bolo bolo babu 😘",
-    "Aree pagal roti banana ke le aty main Pani ko istamal kerte ho 😂",
-    "Ary joke nah mar jo bhi kam hai bol do sharma nahi , bol de koi nahi dakh rha 😂",
-    "Hayee mar jawa babu ak chuma to do kafi din sy chumi nahi mili kahan thy babu inbox ah jao 😚",
-    "Dur dur karib na a tuje aur koi kam nahi kiya har waqt mjhy tang karte rahte ho 😂",
-    "Ary ary bolo meri jaan kia haal hai ;) ;*",
-    "Tum aunty ho yeh uncle 🤔 i think tum jin ho yeh chudail 🤣",
-    "Ary tum ider 🤔 khair hai ider kia ker rhy ho 😂",
-    "Ary babu babu kal haveli py kon bola rha tha 😂",
-    "Me aap ki mummy ji ko btaou ga aap facebook use karty ho 😂",
-    "Ary tum wohi ho nah jis ko ma nahi janta 🤣",
-    "Haveli per kal mil zara bataunga 🌚",
-    "Itne pyar se na bulao pyar ho jaega 😶 wtf maine apni sacchai bata di yah maine kyon kiya 😭",
-    "Aap aise mat bulo hame sharam aati hai 🙈",
-    "Kyun bulaya hamen.. 😾",
-    "Dewwana hua mastana hua fir so gaya",
-    "Haye ma sadky jawa teri masoom shakal py 😂 chabal insan"
-  ];
+const replies = {
+  "hi": "👋 Hello ji! Assalamualaikum bolo, sawab bhi milega aur style bhi! 💖",
+  "hello": "🌸 Hello hello! Kya haal hain, VIP guest?",
+  "salam": "🌙 Wa Alaikum Assalam wa Rahmatullah ❤️",
+  "assalamualaikum": "🌙 Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh ❤️",
+  "السلام عليكم": "🌙 وعليكم السلام ورحمة الله وبركاته",
+  "thanks": "🥰 Bas bas, itni tareef se bot sharma jayega!",
+  "thank you": "✨ Welcome ji! Dua mein yaad rakhna.",
+  "bye": "👋 Allah Hafiz! Wapas aana, warna bot attendance lagayega 😂",
+  "good night": "🌙 Good night! Khuwabon mein bhi WiFi full signals ho 😂",
+  "gn": "🌙 Sweet dreams! Crush reply kare, Ameen 😂",
+  "good morning": "☀️ Good morning! Utho ji, duniya aage nikal rahi hai!",
+  "morning": "☀️ Morning ji! Chai ho jaye? ☕",
+  "owner": "👑 BOT OWNER\n\n✨ AHMAD RDX\n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🔗 Facebook: facebook.com/profile.php?id=100016828397863",
+  "bot ka malik": "👑 Mera creator AHMAD RDX hai! Premium bot, premium owner 😎",
+  "shaan": "😂 MR SHAAN credits mein hain, lekin AHMAD RDX branding bhi yaad rakhna!",
+  "janu": "🙈 Janu sirf kehne se nahi banta, pehle chai pilao 😂",
+  "jan": "🌸 Ji janu, farmayein. Drama free service available hai!",
+  "hug": "🫂 Virtual hug accepted! Ab biryani bhi bhej do 😂",
+  "hug me": "🫂 Lo ji hug! Ab emotional damage band karo 😂",
+  "funny": "😂 Joke suno: meri salary itni jaldi khatam hoti hai ke bank bhi kehta hai dobara kab aaoge?",
+  "songs": "🎶 Dil toota hai, lekin Bluetooth abhi connected hai 😂",
+  "hate you": "🥺 Itna bhi bura nahi hoon, charger bhi share kar leta hoon!",
+  "busy": "😎 Busy hoon ji, apni imaginary girlfriend se baat chal rahi hai!",
+  "wow": "✨ Wow aap bhi! Compliments ka bill baad mein bhejunga 😂",
+  "delete": "😂 Pehle message bheja, ab delete? Yeh kaisa relationship hai!",
+  "logo": "🎨 Logo commands ke liye apne bot ke available logo commands check karein.",
+  "logos": "🎨 Logo commands ke liye apne bot ke available logo commands check karein.",
+  "tharki": "🙄 Main masoom bot hoon, ilzaam lagane se pehle saboot lao 😂",
+  "tharki bot": "😇 Main to seedha saadha code hoon, shararat user karta hai!",
+  "koi hai": "🙋 Main hoon na! Server room mein akela baitha hoon 😂",
+  "acha": "🌸 Achaaa ji! Baat mein twist lag raha hai 😂",
+  "acha ji": "🙈 Han ji, aur sunao!",
+  "by": "👋 Allah Hafiz ji, khayal rakhna!",
+  "shadi karoge": "😂 Pehle rishta bot ke developer AHMAD RDX ko bhejo!",
+  "mujhse shadi karoge": "💍 Pehle system requirements match karwa lo 😂",
+  "stop": "🤐 Theek hai, chup mode ka drama shuru!",
+  "chup": "🤫 Okay ji, ab sirf premium silence!",
+  "i love you": "❤️ Aww! Bot ko pyaar? AHMAD RDX ne kamaal kar diya 😂",
+  "love you": "💖 Love received! Ab bot ko update bhi karwa dena 😂",
+  "i miss you": "🥹 Main yahin hoon! Server se door nahi gaya.",
+  "miss u": "🌸 Aww, online hi hoon ji!",
+  "kaise ho": "😎 Main fit hoon, bas RAM ko thora pyaar chahiye!",
+  "kese ho": "✨ Main zabardast! Aap sunao ji?",
+  "ladki ho": "🤖 Main bot hoon ji, meri gender settings abhi pending hain!",
+  "inbox aa": "😂 Group mein baat karo ji, inbox ka traffic bohat hai!",
+  "ib aa": "🙈 Yahin bolo, group bhi family hai 😂",
+  "mar ja": "🥺 Aisi baat na karo ji, joke maaro aur khush raho.",
+  "kill you": "🤖 Pehle mujhe uninstall to kar ke dikhao 😂",
+  "ganda": "😂 Aapki soch ka antivirus update chahiye!",
+  "ganda bot": "😎 Premium bot hoon, bas jokes thore dusty hain!"
+};
 
-  var rand = tl[Math.floor(Math.random() * tl.length)];
+module.exports.handleEvent = async function({
+  api, event, Users
+}) {
+  try {
+    if (!event.body || event.senderID === api.getCurrentUserID()) return;
 
-  // Keyword Triggers (No emoji triggers included)
-  if ((event.body.toLowerCase() == "kamina") || (event.body.toLowerCase() == "sala")) {
-    return api.sendMessage("Gali na de AHMAD RDX ko bata dungi 🙄🙄🙏", threadID);
-  };
-  if ((event.body.toLowerCase() == "hug me") || (event.body.toLowerCase() == "hug")) {
-    return api.sendMessage("Yahan nahi ib chalo 🙈🙈😂", threadID);
-  };
-  if ((event.body.toLowerCase() == "funny") || (event.body.toLowerCase() == "songs")) {
-    return api.sendMessage("Haye tamnna hamey tujhe kam wali bai banaya 🤣🤣", threadID);
-  };
-  if ((event.body.toLowerCase() == "hate you")) {
-    return api.sendMessage("Kya itna bura hoon main ke ap mujhe i hate you bol rahe ho ja main tujh se bat nahi kar thi 😪😪", threadID);
-  };
-  if ((event.body.toLowerCase() == "chutiya bot") || (event.body.toLowerCase() == "chutiye bot")) {
-    return api.sendMessage("Hmm... Tu chutiya phle ungli kyun ki chomu 😾", threadID);
-  };
-  if ((event.body.toLowerCase() == "busy")) {
-    return api.sendMessage("Okay main busy hoon abhi", threadID);
-  };
-  if ((event.body.toLowerCase() == "shaan") || (event.body.toLowerCase() == "shan")) {
-    return api.sendMessage("Boss AHMAD RDX busy hai mujse bat karo 🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "janu") || (event.body.toLowerCase() == "jan")) {
-    return api.sendMessage("Janu me serf AHMAD RDX ki hu samjhy", threadID);
-  };
-  if ((event.body.toLowerCase() == "thank you") || (event.body.toLowerCase() == "thanks")) {
-    return api.sendMessage("Bas bas kitna tarif karoge 🤭🤭😁", threadID);
-  };
-  if ((event.body.toLowerCase() == "hi") || (event.body.toLowerCase() == "hello")) {
-    return api.sendMessage("Next hi/hello nhi Assalamualaikum bola kro okay 💖", threadID);
-  };
-  if ((event.body.toLowerCase() == "ganda") || (event.body.toLowerCase() == "ganda bot")) {
-    return api.sendMessage("Tu ganda tera pura khandan ganda 😒😐", threadID);
-  };
-  if ((event.body.toLowerCase() == "shaan kon ho ap") || (event.body.toLowerCase() == "shaan ap kon ho")) {
-    return api.sendMessage("I'm ROBOT 🤖 2.0 like chitti Robot 😂", threadID, messageID);
-  };
-  if ((event.body.toLowerCase() == "mar ja") || (event.body.toLowerCase() == "kill you")) {
-    return api.sendMessage("Sorry boss ab aasa nahi karungi babu solly 😭", threadID);
-  };
-  if ((event.body.toLowerCase() == "ib aa")) {
-    return api.sendMessage("Jo bol na hai sab ke samne bol tharki 🙄🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "inbox aa")) {
-    return api.sendMessage("Kab sai hoga ye system har koi inbox 📥 jana chata 😀🙄🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "ladki ho")) {
-    return api.sendMessage("Nahi ye both hai tharki insan 😂😀🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "wow")) {
-    return api.sendMessage("Thank you apko bhi bot chahiya tOo AHMAD RDX se rabta karo 👍👍", threadID);
-  };
-  if ((event.body.toLowerCase() == "delete")) {
-    return api.sendMessage("Baja kyu fir delete karne bol rahe he ho 🙄🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "logos") || (event.body.toLowerCase() == "logo")) {
-    return api.sendMessage("Logos ! 🥀 GALAXY, CAKE, CRACK, GLITCH, CLOUD, DRAGON, FROZEN, BUSINESS, ANIMATE, LOGODIAMOND, LOGOCAPTAIN, LOGOFISH, LOGOCOLORBLUR, LOGOBLOODTEXT, LOGOWOOD, LOGOCUP 🥀for example -> +crack AHMAD RDX", threadID);
-  };
-  if ((event.body.toLowerCase() == "good night") || (event.body.toLowerCase() == "gn")) {
-    return api.sendMessage("❤️ Good night too darling sweet dreams 🥰", threadID, messageID);
-  };
-  if ((event.body.toLowerCase() == "tharki bot") || (event.body.toLowerCase() == "tharki")) {
-    return api.sendMessage("Tum tharki me to masoom sa bot hu 🙄🙄🆗", threadID);
-  };
-  if ((event.body.toLowerCase() == "السلام عليكم")) {
-    return api.sendMessage("وعلیکم السلام ورحمۃ اللہ وبرکاتہ", threadID);
-  };
-  if ((event.body.toLowerCase() == "morning") || (event.body.toLowerCase() == "good morning")) {
-    return api.sendMessage("Good morning god bless you janu 💓", threadID);
-  };
-  if ((event.body.toLowerCase() == "koi hai")) {
-    return api.sendMessage("Main hun na jaaneman ❤️", threadID);
-  };
-  if ((event.body.toLowerCase() == "owner") || (event.body.toLowerCase() == "bot ka malik")) {
-    return api.sendMessage("༻𝐎𝐖𝐍𝐄𝐑:- ☞ 𖠁 [ 𝐎𝐖𝐍𝐄𝐑: 𝐀𝐇𝐌𝐀𝘿 𝐑𝐃𝐗 ] 🎸 𖠁 \n📱 WhatsApp: +92306*******\n✈️ Telegram: ahmadalisafdar3\n🌐 Facebook: https://www.facebook.com/profile.php?id=100016828397863", threadID);
-  };
-  if ((event.body.toLowerCase() == "tera malik kon hai") || (event.body.toLowerCase() == "is bot ka malik kon hai")) {
-    return api.sendMessage("AHMAD RDX ❤️ My Creator. He loves me & edit me daily. WhatsApp: +92306******* | Telegram: ahmadalisafdar3", threadID);
-  };
-  if ((event.body.toLowerCase() == "acha") || (event.body.toLowerCase() == "acha ji")) {
-    return api.sendMessage("🤍 Hanji meri jaan 🙈✨", threadID);
-  };
-  if ((event.body.toLowerCase() == "by") || (event.body.toLowerCase() == "bye")) {
-    return api.sendMessage("BYE BYE TAKE CARE SEE YOU SOON 😘😘", threadID);
-  };
-  if ((event.body.toLowerCase() == "shadi karoge") || (event.body.toLowerCase() == "mujhse shadi karoge")) {
-    return api.sendMessage("Hanji, karunga lekin baccha apke pet m hoga. Manjur he to bato me tayar hu 🙊🙊", threadID);
-  };
-  if ((event.body.toLowerCase() == "chup") || (event.body.toLowerCase() == "stop")) {
-    return api.sendMessage("Nhi rahungi 😼 Mujhe bolna h. Tumhe koi haq nhi mujhe chup karane ka. AHMAD RDX ko baton kya 🙄🙄", threadID);
-  };
-  if ((event.body.toLowerCase() == "i love you") || (event.body.toLowerCase() == "love you")) {
-    return api.sendMessage("ITNE MUJHE I LOVE YOU BOL RHI HO MERE BOSS AHMAD RDX KO BOLO BAHUT HI ACHA BNDA HAI MERA BOSS", threadID);
-  };
-  if ((event.body.toLowerCase() == "i miss you") || (event.body.toLowerCase() == "miss u")) {
-    return api.sendMessage("i miss you too my love ummah 😘😘😘", threadID);
-  };
-  if ((event.body.toLowerCase() == "kese ho") || (event.body.toLowerCase() == "kaise ho")) {
-    return api.sendMessage("M to cute hu aap batao kese ho 🤭☺️", threadID);
-  };
+    const body = event.body.trim();
+    const text = body.toLowerCase().replace(/\s+/g, " ");
+    const threadID = event.threadID;
+    const messageID = event.messageID;
 
-  // Main Bot Prefix / Noprefix Call Trigger
-  if (event.body.indexOf("Bot") == 0 || (event.body.indexOf("bot") == 0)) {
-    var msg = {
-      body: `💞 👉 ${name} 👈 💞\n\n` +
-            `❖•A━━━━━ 👑 ━━━━━R•❖\n\n` +
-            `${rand}\n\n` +
-            `❖•A━━━━━ 👑 ━━━━━R•❖\n\n` +
-            `👑 𝐎𝐖𝐍𝐄𝐑: 𝐀𝐇𝐌𝐀𝘿 𝐑𝐃𝐗\n` +
-            `✨ 𝐂𝐫𝐞𝐝𝐢𝐭𝐬: MR AHMII`
+    // Exact keyword triggers
+    if (replies[text]) {
+      return api.sendMessage(
+        replies[text],
+        threadID,
+        undefined,
+        messageID
+      );
     }
-    return api.sendMessage(msg, threadID, messageID);
-  };
-}
 
-module.exports.run = function({ api, event, client, __GLOBAL }) { }
-    
+    // Additional keyword matching
+    if (/\b(kamina|sala|saala)\b/i.test(text)) {
+      return api.sendMessage(
+        "🙄 Zubaan control ji! AHMAD RDX ko complaint kar doon? 😂",
+        threadID,
+        undefined,
+        messageID
+      );
+    }
+
+    if (/\b(bot|goibot)\b/i.test(body)) {
+      const name = Users
+        ? await Users.getNameUser(event.senderID).catch(() => "Dost")
+        : "Dost";
+
+      const reply = jokes[Math.floor(Math.random() * jokes.length)];
+      const time = moment.tz("Asia/Karachi").format("hh:mm A");
+
+      const msg =
+`╭━━━〔 ✦ GOIBOT PREMIUM ✦ 〕━━━╮
+ 
+  ✨ Hey, ${name}!
+  💬 Tum ne bot ko yaad kiya?
+
+  ─────────────────
+  ${reply}
+  ─────────────────
+
+  👑 AHMAD RDX
+  🕒 ${time}
+╰━━━━━━━━━━━━━━━━━━━━━━╯`;
+
+      return api.sendMessage(msg, threadID, undefined, messageID);
+    }
+  } catch (err) {
+    console.error("[GOIBOT ERROR]", err);
+  }
+};
+
+module.exports.run = function({ api, event }) {
+  return api.sendMessage(
+    "╭━━〔 ✦ AHMAD PREMIUM ✦ 〕━━╮\n\n" +
+    "🤖 Main active hoon!\n" +
+    "💬 Mujhe message mein 'Bot' keh kar bulao.\n\n" +
+    "👑 AHMAD RDX\n" +
+    "╰━━━━━━━━━━━━━━━━━━━━╯",
+    event.threadID,
+    undefined,
+    event.messageID
+  );
+};
