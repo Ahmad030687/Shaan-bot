@@ -1,416 +1,103 @@
-/**
- * Module: Auto Sent Hourly Quranic Verses
- * Path: Sardar/commands/autosent.js
- * Credits: SHAAN-KHAN (Strictly preserved)
- * Upgraded & Branded by: AHMAD RDX
- */
 
-module.exports.config = {
-    name: 'autosent',
-    version: '10.02',
-    hasPermssion: 0,
-    credits: 'SHAAN-KHAN', // Strict core credit preserved
-    description: 'Set karne ke baad automatically har ghante Quran Pak ki Ayat broadcast karega',
-    commandCategory: 'group messenger',
-    usages: '[]',
-    cooldowns: 3
-};
-
-const nam = [
-    {
-        timer: '12:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 12:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ »\n\n" +
-            "💬  پس تم مجھے یاد رکھو، میں تمہیں یاد رکھوں گا اور میرا شکر ادا کرو اور ناشکری نہ کرو۔\n" +
-            "📖  [سورۃ البقرہ: 152]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '1:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 1:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « إِنَّ مَعَ الْعُسْرِ يُسْرًا »\n\n" +
-            "💬  بیشک ہر مشکل کے ساتھ آسانی ہے۔\n" +
-            "📖  [سورۃ الشرح: 6]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '2:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 2:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَتَوَكَّلْ عَلَى الْحَيِّ الَّذِي لَا يَمُوتُ »\n\n" +
-            "💬  اور اس زندہ (ذات) پر بھروسہ رکھو جسے کبھی موت نہیں آنی۔\n" +
-            "📖  [سورۃ الفرقان: 58]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '3:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 3:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَالْمُسْتَغْفِرِينَ بِالْأَسْحَارِ »\n\n" +
-            "💬  اور رات کے آخری حصے میں استغفار کرنے والے۔\n" +
-            "📖  [سورۃ آل عمران: 17]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '4:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 4:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا »\n\n" +
-            "💬  بیشک نماز مومنوں پر مقررہ وقت پر فرض کی گئی ہے۔\n" +
-            "📖  [سورۃ النساء: 103]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '5:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 5:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَقُرْآنَ الْفَجْرِ ۖ إِنَّ قُرْآنَ الْفَجْرِ كَانَ مَشْهُودًا »\n\n" +
-            "💬  اور فجر کا قرآن پڑھا کرو، بیشک فجر کا پڑھنا مقبول ہوتا ہے۔\n" +
-            "📖  [سورۃ الإسراء: 78]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '6:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 6:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَأَنْ لَيْسَ لِلْإِنْسَانِ إِلَّا مَا سَعَىٰ »\n\n" +
-            "💬  اور انسان کے لیے وہی کچھ ہے جس کی اس نے کوشش کی۔\n" +
-            "📖  [سورۃ النجم: 39]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '7:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 7:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « قُلْ بِفَضْلِ اللَّهِ وَبِرَحْمَتِهِ فَبِذَٰلِكَ فَلْيَفْرَحُوا »\n\n" +
-            "💬  آپ فرمادیجیے کہ اللہ کے فضل اور اس کی رحمت پر انہیں خوش ہونا چاہیے۔\n" +
-            "📖  [سورۃ یونس: 58]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '8:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 8:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ »\n\n" +
-            "💬  اگر تم شکر ادا کرو گے تو میں تمہیں اور زیادہ دوں گا۔\n" +
-            "📖  [سورۃ إبراهيم: 7]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '9:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 9:00 AM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَاللَّهُ يَرْزُقُ مَن يَشَاءُ بِغَيْرِ حِسَابٍ »\n\n" +
-            "💬  اور اللہ جسے چاہتا ہے بے حساب رزق عطا فرماتا ہے۔\n" +
-            "📖  [سورۃ البقرہ: 212]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '10:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 10:00 AM 📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ »\n\n" +
-            "💬  خبردار! اللہ کے ذکر ہی سے دلوں کو اطمینان حاصل ہوتا ہے۔\n" +
-            "📖  [سورۃ الرعد: 28]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '11:00:00 AM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 11:00 AM 📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَقُل رَّبِّ زِدْنِي عِلْمًا »\n\n" +
-            "💬  اور التجا کرو کہ اے میرے رب! میرے علم میں اضافہ فرما۔\n" +
-            "📖  [سورۃ طٰہٰ: 114]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '12:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 12:00 PM 📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ »\n\n" +
-            "💬  اور نیکی اور پرہیزگاری کے کاموں میں ایک دوسرے کی مدد کیا کرو۔\n" +
-            "📖  [سورۃ المائدہ: 2]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '1:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 1:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « إِنَّ اللَّهَ مَعَ الصَّابِرِينَ »\n\n" +
-            "💬  بیشک اللہ صبر کرنے والوں کے ساتھ ہے۔\n" +
-            "📖  [سورۃ البقرہ: 153]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '2:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 2:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ »\n\n" +
-            "💬  اور جو شخص اللہ پر بھروسہ کرتا ہے تو وہ اس کے لیے کافی ہے۔\n" +
-            "📖  [سورۃ الطلاق: 3]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '3:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 3:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا »\n\n" +
-            "💬  اور آپ اپنے رب کے حکم کے لیے صبر کریں، بیشک آپ ہماری حفاظت میں ہیں۔\n" +
-            "📖  [سورۃ الطور: 48]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '4:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 4:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « إِنَّ الْحَسَنَاتِ يُذْهِبْنَ السَّيِّئَاتِ »\n\n" +
-            "💬  بیشک نیکیاں برائیوں کو مٹا دیتی ہیں۔\n" +
-            "📖  [سورۃ ہود: 114]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '5:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 5:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ »\n\n" +
-            "💬  اور میری رحمت ہر چیز پر محیط ہے۔\n" +
-            "📖  [سورۃ الأعراف: 156]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '6:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 6:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَقُل رَّبِّ اغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ الرَّاحِمِينَ »\n\n" +
-            "💬  اور کہو کہ اے میرے رب! بخش دے اور رحم فرما، اور تو سب سے بہتر رحم فرمانے والا ہے۔\n" +
-            "📖  [سورۃ المؤمنون: 118]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '7:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 7:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « ادْعُونِي أَسْتَجِبْ لَكُمْ »\n\n" +
-            "💬  تم مجھ سے دعا کرو، میں تمہاری دعا قبول کروں گا۔\n" +
-            "📖  [سورۃ غافر: 60]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '8:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 8:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « لَا تُكَلَّفُ نَفْسٌ إِلَّا وُسْعَهَا »\n\n" +
-            "💬  کسی شخص پر اس کی طاقت سے زیادہ بوجھ نہیں ڈالا جاتا۔\n" +
-            "📖  [سورۃ البقرہ: 286]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '9:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 9:00 PM  📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « ۚ وَتُوبُوا إِلَى اللَّهِ جَمِيعًا أَيُّهَ الْمُؤْمِنُونَ لَعَلَّكُمْ تُفْلِحُونَ »\n\n" +
-            "💬  اور اے مومنو! تم سب اللہ کے حضور توبہ کرو تاکہ تم فلاح پاؤ۔\n" +
-            "📖  [سورۃ النور: 31]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '10:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 10:00 PM 📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ »\n\n" +
-            "💬  اور عنقریب تمہارا رب تمہیں اتنا کچھ دے گا کہ تم راضی ہو جاؤ گے۔\n" +
-            "📖  [سورۃ الضحى: 5]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    },
-    {
-        timer: '11:00:00 PM',
-        message: [
-            "╔════════════════════════╗\n" +
-            "║ 📖  آیتِ مبارکہ - 11:00 PM 📖 ║\n" +
-            "╚════════════════════════╝\n\n" +
-            "✨  « قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ »\n\n" +
-            "💬  آپ فرما دیجیے: وہ اللہ ایک ہے، اللہ بے نیاز ہے۔\n" +
-            "📖  [سورۃ الإخلاص: 1-2]\n\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "👑 POWERED BY: AHMAD RDX\n" +
-            "📱 WhatsApp: +92306*******\n" +
-            "✈️ Telegram: ahmadalisafdar3\n" +
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ]
-    }
+const AYAT = [
+  ["إِنَّ مَعَ الْعُسْرِ يُسْرًا", "Beshak mushkil ke saath aasani hai.", "Ash-Sharh 94:6"],
+  ["فَاذْكُرُونِي أَذْكُرْكُمْ", "Tum Mujhe yaad karo, Main tumhein yaad karunga.", "Al-Baqarah 2:152"],
+  ["إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", "Beshak Allah sabr karne walon ke saath hai.", "Al-Baqarah 2:153"],
+  ["لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا", "Gham na karo, Allah hamare saath hai.", "At-Tawbah 9:40"],
+  ["وَاللَّهُ خَيْرُ الرَّازِقِينَ", "Allah sab se behtar rizq dene wala hai.", "Al-Jumu'ah 62:11"],
+  ["إِنَّ اللَّهَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "Beshak Allah har cheez par qadir hai.", "Al-Baqarah 2:20"],
+  ["وَهُوَ مَعَكُمْ أَيْنَ مَا كُنْتُمْ", "Tum jahan bhi ho, Woh tumhare saath hai.", "Al-Hadid 57:4"],
+  ["إِنَّ اللَّهَ يُحِبُّ الْمُحْسِنِينَ", "Allah neki karne walon se muhabbat karta hai.", "Al-Baqarah 2:195"],
+  ["ادْعُونِي أَسْتَجِبْ لَكُمْ", "Mujh se dua karo, Main tumhari dua qabool karunga.", "Ghafir 40:60"],
+  ["وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ", "Meri taufeeq sirf Allah ki madad se hai.", "Hud 11:88"],
+  ["إِنَّ اللَّهَ غَفُورٌ رَحِيمٌ", "Beshak Allah bakhshne wala, meherban hai.", "Al-Baqarah 2:173"],
+  ["فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", "Pas yaqeenan mushkil ke saath aasani hai.", "Ash-Sharh 94:5"],
+  ["وَقُلْ رَبِّ زِدْنِي عِلْمًا", "Aur kaho: Ae mere Rab, mere ilm mein izafa farma.", "Ta-Ha 20:114"],
+  ["إِنَّ اللَّهَ يُحِبُّ التَّوَّابِينَ", "Allah tauba karne walon se muhabbat karta hai.", "Al-Baqarah 2:222"],
+  ["وَلَا تَيْأَسُوا مِنْ رَوْحِ اللَّهِ", "Allah ki rehmat se mayoos na ho.", "Yusuf 12:87"],
+  ["حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "Allah hamare liye kaafi hai, Woh behtareen kaarsaaz hai.", "Aal-e-Imran 3:173"],
+  ["إِنَّ رَبِّي قَرِيبٌ مُجِيبٌ", "Beshak mera Rab qareeb aur dua qabool karne wala hai.", "Hud 11:61"],
+  ["وَاللَّهُ يُحِبُّ الصَّابِرِينَ", "Allah sabr karne walon se muhabbat karta hai.", "Aal-e-Imran 3:146"],
+  ["إِنَّ رَحْمَتَ اللَّهِ قَرِيبٌ", "Beshak Allah ki rehmat qareeb hai.", "Al-A'raf 7:56"],
+  ["وَإِلَى اللَّهِ تُرْجَعُ الْأُمُورُ", "Aur tamam mamlaat Allah hi ki taraf lautaye jate hain.", "Al-Baqarah 2:210"],
+  ["رَبِّ اشْرَحْ لِي صَدْرِي", "Ae mere Rab, mera seena khol de.", "Ta-Ha 20:25"],
+  ["إِنَّ اللَّهَ مَعَنَا", "Beshak Allah hamare saath hai.", "At-Tawbah 9:40"],
+  ["وَهُوَ أَرْحَمُ الرَّاحِمِينَ", "Aur Woh sab meherbanon se zyada meherban hai.", "Yusuf 12:64"],
+  ["الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", "Sab tareef Allah ke liye hai jo tamam jahanon ka Rab hai.", "Al-Fatihah 1:2"]
 ];
 
-module.exports.onLoad = o => setInterval(() => {
-    const r = a => a[Math.floor(Math.random() * a.length)];
-    // Asia/Karachi time sync calculation
-    const currentTime = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi' });
-    
-    if (á = nam.find(i => i.timer == currentTime)) {
-        global.data.allThreadID.forEach(i => o.api.sendMessage(r(á.message), i));
-    }
-}, 1000);
+module.exports.config = {
+  name: "autosent",
+  version: "12.0",
+  permission: 0,
+  credits: "SHAAN-KHAN | AHMAD RDX",
+  description: "Hourly Quran Ayat",
+  commandCategory: "group messenger",
+  cooldowns: 3
+};
 
-module.exports.run = o => {};
+const formatTime = () => new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Karachi",
+  hour: "numeric",
+  hour12: true
+}).format(new Date());
+
+function sendAyat(api, threadID, hour) {
+  const a = AYAT[hour];
+  const msg = `🌙 ═══ QURAN REMINDER ═══ 🌙
+
+📖 ${a[0]}
+
+✨ Tarjuma:
+${a[1]}
+
+📚 Reference: ${a[2]}
+🕒 Pakistan Time: ${formatTime()}
+
+💎 POWERED BY AHMAD RDX`;
+
+  api.sendMessage(msg, threadID);
+}
+
+module.exports.onLoad = ({ api }) => {
+  if (global.autosentTimer) clearInterval(global.autosentTimer);
+  global.autosentEnabled ??= true;
+  global.autosentLastHour ??= "";
+
+  global.autosentTimer = setInterval(() => {
+    if (!global.autosentEnabled) return;
+
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Karachi",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).format(now);
+
+    if (!parts.endsWith(":00") || global.autosentLastHour === parts) return;
+    global.autosentLastHour = parts;
+
+    const hour = Number(new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Karachi",
+      hour: "2-digit",
+      hourCycle: "h23"
+    }).format(now));
+
+    for (const id of global.data?.allThreadID || []) {
+      sendAyat(api, id, hour);
+    }
+  }, 15000);
+};
+
+module.exports.run = ({ api, event, args }) => {
+  const action = (args[0] || "status").toLowerCase();
+
+  if (action === "on") global.autosentEnabled = true;
+  else if (action === "off") global.autosentEnabled = false;
+
+  return api.sendMessage(
+    `🌙 AUTOSENT: ${global.autosentEnabled ? "ON ✅" : "OFF ⛔"}\n.autosent on\n.autosent off`,
+    event.threadID
+  );
+};
