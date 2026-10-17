@@ -18,8 +18,8 @@ module.exports.handleEvent = async function ({ api, event, Users }) {
   const name = await Users.getNameUser(senderID);
 
   const frame = (text) =>
-    `╭─『 👑 AHMAD RDX 』─╮\n` +
-    `${text}\n` +
+    `╭─『 👑 AHMAD RDX 』─╮\n\n` +
+    `${text}\n\n` +
     `╰─♡ Premium Bot ♡─╯`;
 
   const jokes = [
