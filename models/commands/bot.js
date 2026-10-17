@@ -7,7 +7,7 @@
 const moment = require("moment-timezone");
 
 module.exports.config = {
-  name: "ahmadrdx",
+  name: "goibot",
   version: "3.1.0",
   hasPermssion: 0,
   credits: "MR SHAAN",
