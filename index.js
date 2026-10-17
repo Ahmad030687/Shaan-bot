@@ -1,38 +1,21 @@
 const { spawn } = require("child_process");
-const axios = require("axios");
 const logger = require("./utils/log");
-
-///////////////////////////////////////////////////////////
-//========= Create website for dashboard/uptime =========//
-///////////////////////////////////////////////////////////
-
 const express = require('express');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Serve the index.html file
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '/index.html'));
+    res.send("<h1>AHMAD RDX BOT IS ACTIVE & RUNNING SMOOTHLY 🚀</h1>");
 });
 
-// Start the server and add error handling
 app.listen(port, '0.0.0.0', () => {
     logger(`Server is running on port ${port}...`, "[ Starting ]");
 }).on('error', (err) => {
-    if (err.code === 'EACCES') {
-        logger(`Permission denied. Cannot bind to port ${port}.`, "[ Error ]");
-    } else {
-        logger(`Server error: ${err.message}`, "[ Error ]");
-    }
+    logger(`Server error: ${err.message}`, "[ Error ]");
 });
 
-/////////////////////////////////////////////////////////
-//========= Create start bot and make it loop =========//
-/////////////////////////////////////////////////////////
-
-// Initialize global restart counter
 global.countRestart = global.countRestart || 0;
 
 function startBot(message) {
@@ -45,24 +28,18 @@ function startBot(message) {
     });
 
     child.on("close", (codeExit) => {
-        if (codeExit !== 0 && global.countRestart < 5) {
+        if (codeExit !== 0 && global.countRestart < 10) {
             global.countRestart += 1;
-            logger(`Bot exited with code ${codeExit}. Restarting... (${global.countRestart}/5)`, "[ Restarting ]");
-            startBot();
+            logger(`Bot process exited with code ${codeExit}. Auto-healing restart (${global.countRestart}/10)...`, "[ Auto-Restart ]");
+            setTimeout(() => startBot(), 3000);
         } else {
-            logger(`Bot stopped after ${global.countRestart} restarts.`, "[ Stopped ]");
+            logger(`Bot process stopped after multiple restarts.`, "[ Stopped ]");
         }
     });
 
     child.on("error", (error) => {
-        logger(`An error occurred: ${JSON.stringify(error)}`, "[ Error ]");
+        logger(`Process Error: ${JSON.stringify(error)}`, "[ Error ]");
     });
-};
+}
 
-////////////////////////////////////////////////
-//========= Check update from Github =========//
-////////////////////////////////////////////////
-
-
-// Start the bot
 startBot();
